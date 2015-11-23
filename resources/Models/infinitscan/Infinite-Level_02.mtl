@@ -1,0 +1,7 @@
+# File created by ZBrush
+# ToolType: PolyMesh3D
+# www.zbrush.com
+newmtl defaultMat
+map_Kd Images/Map-COL.jpg
+map_bump Images/Infinite-Level_02_Tangent_NoSmoothUV_small.jpg
+bump Images/Infinite-Level_02_Tangent_NoSmoothUV_small.jpg
