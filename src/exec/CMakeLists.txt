@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(RenderTools)
+project(myEzrHatching)
 
 
 
@@ -24,7 +24,7 @@ file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
 message("Found headers: " "${HEADER_FILES}")
 message("Found headers: " "${SOURCE_FILES}")
-add_executable(RenderTools ${SOURCE_FILES} ${HEADER_FILES})
+add_executable(myEzrHatching ${SOURCE_FILES} ${HEADER_FILES})
 
 
 
@@ -43,7 +43,7 @@ include_directories(
 )
 
 target_link_libraries(
-    RenderTools
+    myEzrHatching
     ${GLFW3_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${OpenGL3_LIBRARIES}
