@@ -92,7 +92,8 @@ int main() {
 	// -------------------------------------------------------------- Load Texture
 		int imageWidth = 0;
 		int imageHeight = 0;
-		GLuint texture = utils::loadTexture(&imageWidth, &imageHeight);
+		const char* filename = RESOURCES_PATH"/kitty.jpg";
+		GLuint texture = utils::loadTexture(filename, &imageWidth, &imageHeight);
 
 	//--------------------------------------------------------------- Vertex Buffer
 	// Vertex Array Object

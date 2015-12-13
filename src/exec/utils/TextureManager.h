@@ -4,8 +4,8 @@
 #include <GL/glew.h>
 
 namespace utils {
-	unsigned char* loadImage(int* imageWidth, int* imageHeight, int* comp);
-	GLuint loadTexture(int* imageWidth, int* imageHeight);
+	unsigned char* loadImage(const char* filename, int* imageWidth, int* imageHeight, int* comp);
+	GLuint loadTexture(const char* filename, int* imageWidth, int* imageHeight);
 }
 
 #endif

@@ -5,10 +5,10 @@
 using namespace std;
 
 namespace utils {
-unsigned char* loadImage(int* imageWidth, int* imageHeight, int* comp) {
+unsigned char* loadImage(const char* filename, int* imageWidth, int* imageHeight, int* comp) {
 	int req_comp=0;
 
-	FILE *file = fopen("F:/Uni/EZR/resources/kitty.jpg", "rb");
+	FILE *file = fopen(filename, "rb");
 	if (!file) {
 		cout << "can not open image file" << endl;
 		return 0;
@@ -22,12 +22,12 @@ unsigned char* loadImage(int* imageWidth, int* imageHeight, int* comp) {
 	return image;
 }
 
-GLuint loadTexture(int* imageWidth, int* imageHeight) {
+GLuint loadTexture(const char* filename, int* imageWidth, int* imageHeight) {
 
 	GLuint texture;
 	int comp=0;
 
-	unsigned char * data = loadImage(imageWidth, imageHeight, &comp);
+	unsigned char * data = loadImage(filename, imageWidth, imageHeight, &comp);
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
