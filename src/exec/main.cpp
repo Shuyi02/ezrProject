@@ -10,8 +10,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "utils/ShaderLoad.h"
 #include "utils/Control.h"
+#include "utils/Model.h"
+#include "utils/ShaderLoad.h"
 
 //not nice but camera mouse controls work
 GLFWwindow* window;
@@ -28,6 +29,7 @@ static const GLfloat g_vertex_buffer_data[] = {
 };
 
 int main() {
+
 
 	//----------------------------------------------------------------setup
 	 // initialize GLFW
@@ -92,7 +94,10 @@ int main() {
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	 // ------------------------------------------------------------- create and compile GLSL program from shaders
+
+	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+
+	// ------------------------------------------------------------- create and compile GLSL program from shaders
 	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
 
 	 //-------------------------------------------------------------- Uniforms
@@ -116,6 +121,7 @@ int main() {
 		//send transformation to the currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
+		glBindVertexArray(VertexArrayID);
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -129,7 +135,9 @@ int main() {
 		);
 
 		// ------------------------------------------------------ draw
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+//		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+		ml->render();
 
 		glDisableVertexAttribArray(0);
 
