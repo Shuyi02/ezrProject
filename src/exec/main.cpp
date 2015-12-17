@@ -23,8 +23,18 @@ static const GLfloat g_vertex_buffer_data[] = {
 
    1.0f, -1.0f, 0.0f,
 
-   0.0f,  1.0f, 0.0f,
+   0.0f,  1.0f, 0.0f
 
+};
+
+// An array of 3 vectors which represents 3 vertices
+static const GLfloat g_vertex_buffer_data_normals[] = {
+//		   -1.0f, -1.0f, 1.0f,
+//		   1.0f, -1.0f, 1.0f,
+//		   0.0f,  1.0f, 1.0f
+		   0.0f, 0.0f, 1.0f,
+		   0.0f, 0.0f, 1.0f,
+		   0.0f, 0.0f, 1.0f
 };
 
 int main() {
@@ -85,12 +95,46 @@ int main() {
 	 glGenVertexArrays(1, &VertexArrayID);
 	 glBindVertexArray(VertexArrayID);
 
+
 	 // creating buffer
-	 GLuint vertexbuffer;
-	 glGenBuffers(1, &vertexbuffer);
-	 glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	 GLuint vertexbufferPos;
+	 glGenBuffers(1, &vertexbufferPos);
+	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	//		glEnableVertexAttribArray(1);   //vero look for vertex[0] normale[1]
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
+	glVertexAttribPointer(
+	//		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+	0,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
+	3,                  // size
+	GL_FLOAT,           // type
+	GL_FALSE,           // normalized?
+	0,                  // stride
+	(void*)0            // array buffer offset
+	);
+
+	 // creating buffer normals
+	 GLuint vertexbufferNor;
+	 glGenBuffers(1, &vertexbufferNor);
+	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
+	 // give our vertices to OpenGL.
+	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals), g_vertex_buffer_data_normals, GL_STATIC_DRAW);
+
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+	//		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+	1,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
+	3,                  // size
+	GL_FLOAT,           // type
+	GL_FALSE,           // normalized?
+	0,                  // stride
+	(void*)0            // array buffer offset
+	);
 
 	 // ------------------------------------------------------------- create and compile GLSL program from shaders
 	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
@@ -98,6 +142,8 @@ int main() {
 	 //-------------------------------------------------------------- Uniforms
 	 //handle for our "mvp" modelViwProjMatrix uniform
 	 GLuint MatrixID = glGetUniformLocation(programID, "mvp");
+	 GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
+	 GLuint MatrixIDTIMV = glGetUniformLocation(programID, "ti_mv");
 
 	// ---------------------------------------------------------------rendering loop
 	do{
@@ -113,25 +159,17 @@ int main() {
 		glm::mat4 view = utils::getViewMatrix();
 		glm::mat4 model = glm::mat4(1.0);
 		glm::mat4 mvp = projection * view * model;
+		glm::mat4 mv = view * model;
+		glm::mat4 ti_mv = glm::transpose(glm::inverse(mv));
 		//send transformation to the currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(MatrixIDMV, 1, GL_FALSE, &mv[0][0]);
+		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &ti_mv[0][0]);
 
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-		);
 
 		// ------------------------------------------------------ draw
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
-		glDisableVertexAttribArray(0);
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -143,7 +181,8 @@ int main() {
 	glfwWindowShouldClose(window) == 0 );
 
 	//cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &vertexbufferPos);
+	glDeleteBuffers(1, &vertexbufferNor);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
