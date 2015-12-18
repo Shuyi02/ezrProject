@@ -103,6 +103,8 @@ int main() {
 	 //-------------------------------------------------------------- Uniforms
 	 //handle for our "mvp" modelViwProjMatrix uniform
 	 GLuint MatrixID = glGetUniformLocation(programID, "mvp");
+	 GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
+	 GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
 	// ---------------------------------------------------------------rendering loop
 	do{
@@ -118,8 +120,13 @@ int main() {
 		glm::mat4 view = utils::getViewMatrix();
 		glm::mat4 model = glm::mat4(1.0);
 		glm::mat4 mvp = projection * view * model;
+		glm::mat4 mv = view * model;
+		glm::mat4 mv_ti = glm::transpose(glm::inverse(mv));
+
 		//send transformation to the currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(MatrixIDMV, 1, GL_FALSE, &mv[0][0]);
+		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &mv_ti[0][0]);
 
 		glBindVertexArray(VertexArrayID);
 		// 1rst attribute buffer : vertices

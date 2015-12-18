@@ -23,8 +23,8 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	//	Indices = vbo[3]
 
 	_vbo[0] = NULL;
-//	_vbo[1] = NULL;
-//	_vbo[2] = NULL;
+	_vbo[1] = NULL;
+	_vbo[2] = NULL;
 //	_vbo[3] = NULL;
 
 	glGenVertexArrays(1, &_vao);
