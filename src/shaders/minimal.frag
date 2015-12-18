@@ -23,7 +23,7 @@ void main()
 	//lightPos is the position of light
 	vec3 lightPos = vec3(0.0f, 0.0f, 1.0f);
 	//lightVector is the unit vector that goes from the surface to the light 
-    vec3 lightVector = normalize(lightPos - pos.xyz);//normalize(lightPos.xyz);
+    vec3 lightVector = normalize(lightPos - pos.xyz);
     
     //diffuse 
     // cos_phi: angle between the normal and the light direction: (n*lightVector) or if negativ 0
@@ -40,6 +40,7 @@ void main()
 	
 	float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
 	
+  
     
     float a = cos_phi;
     float b = cos_psi_n;
