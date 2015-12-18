@@ -105,10 +105,8 @@ int main() {
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	//		glEnableVertexAttribArray(1);   //vero look for vertex[0] normale[1]
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
 	glVertexAttribPointer(
-	//		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 	0,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
 	3,                  // size
 	GL_FLOAT,           // type
@@ -124,10 +122,9 @@ int main() {
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals), g_vertex_buffer_data_normals, GL_STATIC_DRAW);
 
-	// 1rst attribute buffer : vertices
+	// 2nd attribute buffer : vertices
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
-	//		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 	1,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
 	3,                  // size
 	GL_FLOAT,           // type
