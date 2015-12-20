@@ -37,21 +37,21 @@ void main()
     //----------------------------- specular IS BUGGY
     //TODO eyePos sollte uebergeben werden?
     // eyePos is of camera
-    vec3 eyePos = vec3(0.0f,0.0f,5.0f);
+    //vec3 eyePos = vec3(0.0f,0.0f,5.0f);
     // towards the camera
-	vec3 eye = normalize(eyePos - vertex_pos.xyz);
+	//vec3 eye = normalize(eyePos - vertex_pos.xyz);
 	// direction in which the triangle reflects the light: reflect(-lightVec*n)
-	vec3 reflection = normalize( reflect( -lightVec, normalize(normal)));
+	//vec3 reflection = normalize( reflect( -lightVec, normalize(normal)));
 	
-	float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
+	//float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
 	
   
     
     float a = cos_phi;
-    float b = cos_psi_n;
-    fcolor = a * diffC + b * specC;
+    //float b = cos_psi_n;
+    //fcolor = a * diffC + b * specC;
     
-    //fcolor = a * diffC;
+    fcolor = a * diffC;
     
     // test output color = red 
 	//color = vec3(1,0,0);

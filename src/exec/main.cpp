@@ -107,7 +107,8 @@ int main() {
 	 glGenBuffers(1, &vertexbufferNor);
 	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
 	 // give our vertices to OpenGL.
-	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals), g_vertex_buffer_data_normals, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals),
+			g_vertex_buffer_data_normals, GL_STATIC_DRAW);
 
 	 //------------------------------------------------------------ load Models
 
@@ -157,10 +158,9 @@ int main() {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
 		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0);
 
-		// --------------------------------------------------------- draw
-		// starting from vertex 0; 3 vertices total -> 1 triangle
-//		 glDrawArrays(GL_TRIANGLES, 0, 3);
+		// ----------------------------------- draw (switch between triangle and model)
 
+//		glDrawArrays(GL_TRIANGLES, 0, 3);
 		ml->render();
 
 
