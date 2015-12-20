@@ -10,13 +10,14 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "utils/ShaderLoad.h"
 #include "utils/Control.h"
+#include "utils/Model.h"
+#include "utils/ShaderLoad.h"
 
 //not nice but camera mouse controls work
 GLFWwindow* window;
 
-// An array of 3 vectors which represents 3 vertices
+// vertices for test triangle
 static const GLfloat g_vertex_buffer_data[] = {
 
    -1.0f, -1.0f, 0.0f,
@@ -27,17 +28,15 @@ static const GLfloat g_vertex_buffer_data[] = {
 
 };
 
-// An array of 3 vectors which represents 3 vertices
+// normals for test triangle
 static const GLfloat g_vertex_buffer_data_normals[] = {
-//		   -1.0f, -1.0f, 1.0f,
-//		   1.0f, -1.0f, 1.0f,
-//		   0.0f,  1.0f, 1.0f
 		   0.0f, 0.0f, 1.0f,
 		   0.0f, 0.0f, 1.0f,
 		   0.0f, 0.0f, 1.0f
 };
 
 int main() {
+
 
 	//----------------------------------------------------------------setup
 	 // initialize GLFW
@@ -89,58 +88,41 @@ int main() {
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	 //--------------------------------------------------------------- Vertex Buffer
+	 //--------------------------------------------- vao and vbo for test triangle
 	 // Vertex Array Object
 	 GLuint VertexArrayID;
 	 glGenVertexArrays(1, &VertexArrayID);
 	 glBindVertexArray(VertexArrayID);
 
 
-	 // creating buffer
+	 // creating buffer vertices
 	 GLuint vertexbufferPos;
 	 glGenBuffers(1, &vertexbufferPos);
 	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
-	glVertexAttribPointer(
-	0,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
-	3,                  // size
-	GL_FLOAT,           // type
-	GL_FALSE,           // normalized?
-	0,                  // stride
-	(void*)0            // array buffer offset
-	);
-
 	 // creating buffer normals
 	 GLuint vertexbufferNor;
 	 glGenBuffers(1, &vertexbufferNor);
 	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
 	 // give our vertices to OpenGL.
-	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals), g_vertex_buffer_data_normals, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals),
+			g_vertex_buffer_data_normals, GL_STATIC_DRAW);
 
-	// 2nd attribute buffer : vertices
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-	1,                  // attribute 1. -> must match the layout in the shader. vero have to looking for
-	3,                  // size
-	GL_FLOAT,           // type
-	GL_FALSE,           // normalized?
-	0,                  // stride
-	(void*)0            // array buffer offset
-	);
+	 //------------------------------------------------------------ load Models
 
-	 // ------------------------------------------------------------- create and compile GLSL program from shaders
+//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
+	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+
+	// ----------------------------------------------- create and compile GLSL program from shaders
 	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
 
-	 //-------------------------------------------------------------- Uniforms
-	 //handle for our "mvp" modelViwProjMatrix uniform
-	 GLuint MatrixID = glGetUniformLocation(programID, "mvp");
-	 GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
-	 GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
+	//-------------------------------------------------------------- Uniforms
+	//handle for our "mvp" modelViwProjMatrix uniform
+	GLuint MatrixID = glGetUniformLocation(programID, "mvp");
+	GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
+	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
 	// ---------------------------------------------------------------rendering loop
 	do{
@@ -158,14 +140,28 @@ int main() {
 		glm::mat4 mvp = projection * view * model;
 		glm::mat4 mv = view * model;
 		glm::mat4 mv_ti = glm::transpose(glm::inverse(mv));
+
 		//send transformation to the currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 		glUniformMatrix4fv(MatrixIDMV, 1, GL_FALSE, &mv[0][0]);
 		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &mv_ti[0][0]);
 
+		glBindVertexArray(VertexArrayID);
 
-		// ------------------------------------------------------ draw
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+		// 2nd attribute buffer : vertices
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
+		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+
+		// ----------------------------------- draw (switch between triangle and model)
+
+//		glDrawArrays(GL_TRIANGLES, 0, 3);
+		ml->render();
 
 
 		// swap buffers
