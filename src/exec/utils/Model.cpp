@@ -18,8 +18,8 @@ namespace utils {
 Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 	//	Vertices = vbo[0]
-	//	TexCoord = vbo[1]
-	//	Normals = vbo[2]
+	//	Normals = vbo[1]
+	//	TexCoord = vbo[2]
 	//	Indices = vbo[3]
 
 	_vbo[0] = NULL;
@@ -50,25 +50,6 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 		delete[] vertices;
 	}
 
-
-	if(mesh->HasTextureCoords(0)) {
-		float *texCoords = new float[mesh->mNumVertices * 2];
-		for(int i = 0; i < mesh->mNumVertices; ++i) {
-			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
-			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
-		}
-
-		glGenBuffers(1, &_vbo[1]);
-		glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, 2 * mesh->mNumVertices * sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (1);
-
-		delete[] texCoords;
-	}
-
-
 	if(mesh->HasNormals()) {
 		float *normals = new float[mesh->mNumVertices * 3];
 		for(int i = 0; i < mesh->mNumVertices; ++i) {
@@ -77,16 +58,32 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			normals[i * 3 + 2] = mesh->mNormals[i].z;
 		}
 
-		glGenBuffers(1, &_vbo[2]);
-		glBindBuffer(GL_ARRAY_BUFFER, _vbo[2]);
+		glGenBuffers(1, &_vbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
 		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), normals, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (2);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (1);
 
 		delete[] normals;
 	}
 
+	if(mesh->HasTextureCoords(0)) {
+		float *texCoords = new float[mesh->mNumVertices * 2];
+		for(int i = 0; i < mesh->mNumVertices; ++i) {
+			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
+			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
+		}
+
+		glGenBuffers(1, &_vbo[2]);
+		glBindBuffer(GL_ARRAY_BUFFER, _vbo[2]);
+		glBufferData(GL_ARRAY_BUFFER, 2 * mesh->mNumVertices * sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (2);
+
+		delete[] texCoords;
+	}
 
 	if(mesh->HasFaces()) {
 		unsigned int *indices = new unsigned int[mesh->mNumFaces * 3];
@@ -105,7 +102,6 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 		delete[] indices;
 	}
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

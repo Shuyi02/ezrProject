@@ -81,7 +81,7 @@ int main() {
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	 //--------------------------------------------------------------- Vertex Buffer
+	 //--------------------------------------------- vao and vbo for test triangle
 	 // Vertex Array Object
 	 GLuint VertexArrayID;
 	 glGenVertexArrays(1, &VertexArrayID);
@@ -94,17 +94,18 @@ int main() {
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+	 //------------------------------------------------------------ load Models
 
-	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
 
-	// ------------------------------------------------------------- create and compile GLSL program from shaders
+	// ----------------------------------------------- create and compile GLSL program from shaders
 	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
 
-	 //-------------------------------------------------------------- Uniforms
-	 //handle for our "mvp" modelViwProjMatrix uniform
-	 GLuint MatrixID = glGetUniformLocation(programID, "mvp");
-	 GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
-	 GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
+	//-------------------------------------------------------------- Uniforms
+	//handle for our "mvp" modelViwProjMatrix uniform
+	GLuint MatrixID = glGetUniformLocation(programID, "mvp");
+	GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
+	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
 	// ---------------------------------------------------------------rendering loop
 	do{
@@ -129,20 +130,15 @@ int main() {
 		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &mv_ti[0][0]);
 
 		glBindVertexArray(VertexArrayID);
+
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-		);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 		// ------------------------------------------------------ draw
-//		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		// starting from vertex 0; 3 vertices total -> 1 triangle
+		// glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ml->render();
 
