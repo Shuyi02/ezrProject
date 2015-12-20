@@ -17,15 +17,22 @@
 //not nice but camera mouse controls work
 GLFWwindow* window;
 
-// An array of 3 vectors which represents 3 vertices
+// vertices for test triangle
 static const GLfloat g_vertex_buffer_data[] = {
 
    -1.0f, -1.0f, 0.0f,
 
    1.0f, -1.0f, 0.0f,
 
-   0.0f,  1.0f, 0.0f,
+   0.0f,  1.0f, 0.0f
 
+};
+
+// normals for test triangle
+static const GLfloat g_vertex_buffer_data_normals[] = {
+		   0.0f, 0.0f, 1.0f,
+		   0.0f, 0.0f, 1.0f,
+		   0.0f, 0.0f, 1.0f
 };
 
 int main() {
@@ -87,16 +94,25 @@ int main() {
 	 glGenVertexArrays(1, &VertexArrayID);
 	 glBindVertexArray(VertexArrayID);
 
-	 // creating buffer
-	 GLuint vertexbuffer;
-	 glGenBuffers(1, &vertexbuffer);
-	 glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+	 // creating buffer vertices
+	 GLuint vertexbufferPos;
+	 glGenBuffers(1, &vertexbufferPos);
+	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
 	 // give our vertices to OpenGL.
 	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+	 // creating buffer normals
+	 GLuint vertexbufferNor;
+	 glGenBuffers(1, &vertexbufferNor);
+	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
+	 // give our vertices to OpenGL.
+	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals), g_vertex_buffer_data_normals, GL_STATIC_DRAW);
+
 	 //------------------------------------------------------------ load Models
 
-	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
+//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
+	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
 
 	// ----------------------------------------------- create and compile GLSL program from shaders
 	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
@@ -133,16 +149,20 @@ int main() {
 
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-		// ------------------------------------------------------ draw
+		// 2nd attribute buffer : vertices
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
+		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+
+		// --------------------------------------------------------- draw
 		// starting from vertex 0; 3 vertices total -> 1 triangle
-		// glDrawArrays(GL_TRIANGLES, 0, 3);
+//		 glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		ml->render();
 
-		glDisableVertexAttribArray(0);
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -154,7 +174,8 @@ int main() {
 	glfwWindowShouldClose(window) == 0 );
 
 	//cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &vertexbufferPos);
+	glDeleteBuffers(1, &vertexbufferNor);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
