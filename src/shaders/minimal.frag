@@ -47,18 +47,20 @@ void main()
 	//vec3 reflection = normalize( reflect( -lightVec, normalize(normal)));
 	
 	//float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
-	
-  
     
-    //float a = cos_phi;
+    float a = cos_phi;
     //float b = cos_psi_n;
     //color = a * diffC + b * specC;
     
-    //color = a * diffC;
-    
+    //----------------------------- choose output color
     // test output color = red 
 	//color = vec3(1,0,0);
 	
-	// Textur-Output color = color of the texture at the specified UV 
+    // lighting color
+    //vec4 fcolor = a * diffC;
+    //color= fcolor.xyz;
+	
+	// texture color = color of the texture at the specified UV 
 	color = texture (textureSampler, uv).rgb;
+	
     }
