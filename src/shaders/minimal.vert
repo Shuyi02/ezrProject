@@ -7,7 +7,6 @@ layout(location = 2) in vec2 vertexUV;
 uniform mat4 mvp;
 uniform mat4 mv;
 uniform mat4 mv_ti;
-uniform sampler2D textureSampler;
 
 out vec3 vertex_pos;
 out vec3 normal;

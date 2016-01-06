@@ -5,7 +5,7 @@
 
 namespace utils {
 	unsigned char* loadImage(const char* filename, int* imageWidth, int* imageHeight, int* comp);
-	GLuint loadTexture(const char* filename, int* imageWidth, int* imageHeight);
+	GLuint loadTexture(const char* filename);
 }
 
 #endif
