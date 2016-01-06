@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec3 vert_modelspace;
 layout(location = 1) in vec3 normal_modelspace;
-layout(location = 3) in vec2 vertexUV;
+layout(location = 2) in vec2 vertexUV;
 
 uniform mat4 mvp;
 uniform mat4 mv;

@@ -50,9 +50,9 @@ void main()
 	
   
     
-    float a = cos_phi;
+    //float a = cos_phi;
     //float b = cos_psi_n;
-    //fcolor = a * diffC + b * specC;
+    //color = a * diffC + b * specC;
     
     //color = a * diffC;
     

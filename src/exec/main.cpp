@@ -94,13 +94,11 @@ int main() {
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-
 	// -------------------------------------------------------------- Load Texture
-		int imageWidth = 0;
-		int imageHeight = 0;
-		const char* filename = RESOURCES_PATH"/kitty.jpg";
-		GLuint texture = utils::loadTexture(filename, &imageWidth, &imageHeight);
-
+	int imageWidth = 0;
+	int imageHeight = 0;
+	const char* filename = RESOURCES_PATH"/kitty.jpg";
+	GLuint texture = utils::loadTexture(filename, &imageWidth, &imageHeight);
 
 	//--------------------------------------------- vao and vbo for test triangle
 	// Vertex Array Object
@@ -124,24 +122,23 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals),
 			g_vertex_buffer_data_normals, GL_STATIC_DRAW);
 
-
-		// creating buffer texture
-		GLuint uvbuffer;
-		glGenBuffers(1, &uvbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-		// give our textures to OpenGL.
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data,
-		GL_STATIC_DRAW);
+	// creating buffer texture
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	// give our textures to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data,
+	GL_STATIC_DRAW);
 
 	//------------------------------------------------------------ load Models
 
 //	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
 	utils::Model *ml = new utils::Model(
-			RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+	RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
 
 	// ----------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
-			SHADERS_PATH "/minimal.frag");
+	SHADERS_PATH "/minimal.frag");
 
 	//-------------------------------------------------------------- Uniforms
 	//handle for our "mvp" modelViwProjMatrix uniform
@@ -149,10 +146,8 @@ int main() {
 	GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
 	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
-		//handle for our "textureSampler" uniform
-		GLuint TextureID = glGetUniformLocation(programID, "textureSampler");
-
-
+	//handle for our "textureSampler" uniform
+	GLuint TextureID = glGetUniformLocation(programID, "textureSampler");
 
 	// ---------------------------------------------------------------rendering loop
 	do {
@@ -196,7 +191,6 @@ int main() {
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-
 		// 3rd attribute buffer : UVs
 		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
@@ -214,6 +208,9 @@ int main() {
 		ml->render();
 
 
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		// swap buffers
 		glfwSwapBuffers(window);
