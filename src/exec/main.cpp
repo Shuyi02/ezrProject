@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+using namespace std;
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -14,68 +15,55 @@
 #include "utils/Model.h"
 #include "utils/ShaderLoad.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "utils/stb_image.h"
+
+#include "utils/TextureManager.h"
+
 //not nice but camera mouse controls work
 GLFWwindow* window;
 
-// vertices for test triangle
-static const GLfloat g_vertex_buffer_data[] = {
-
-   -1.0f, -1.0f, 0.0f,
-
-   1.0f, -1.0f, 0.0f,
-
-   0.0f,  1.0f, 0.0f
-
-};
-
-// normals for test triangle
-static const GLfloat g_vertex_buffer_data_normals[] = {
-		   0.0f, 0.0f, 1.0f,
-		   0.0f, 0.0f, 1.0f,
-		   0.0f, 0.0f, 1.0f
-};
-
 int main() {
 
+	// --------------------------------------------------------------- setup
+	// initialize GLFW
+	if (!glfwInit()) {
+		fprintf( stderr, "Failed to initialize GLFW\n");
+		return -1;
+	}
 
-	//----------------------------------------------------------------setup
-	 // initialize GLFW
-	 if( !glfwInit() )	 {
-	     fprintf( stderr, "Failed to initialize GLFW\n" );
-	     return -1;
-	 }
+	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // we want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //we don't want the old OpenGL
 
-	 glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // we want OpenGL 3.3
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //we don't want the old OpenGL
+	// Open a window and create its OpenGL context
+	window = glfwCreateWindow(1024, 768, "myEZR", NULL, NULL);
 
-	 // Open a window and create its OpenGL context
-	 window = glfwCreateWindow( 1024, 768, "myEZR", NULL, NULL);
+	if (window == NULL) {
+		fprintf( stderr,
+				"Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+		glfwTerminate();
+		return -1;
+	}
 
-	 if( window == NULL ){
-	     fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-	     glfwTerminate();
-	     return -1;
-	 }
+	// initialize GLEW
+	glfwMakeContextCurrent(window);
+	glewExperimental = true; // needed in core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		return -1;
+	}
 
-	 // initialize GLEW
-	 glfwMakeContextCurrent(window);
-	 glewExperimental=true; // needed in core profile
-	 if (glewInit() != GLEW_OK) {
-	     fprintf(stderr, "Failed to initialize GLEW\n");
-	     return -1;
-	 }
-
-	 // ensure we can capture the escape key being pressed below
-	 glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	// ensure we can capture the escape key being pressed below
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	// Hide the mouse and enable unlimited mouvement
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Set the mouse at the center of the screen
 	glfwPollEvents();
-	glfwSetCursorPos(window, 1024/2, 768/2);
+	glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
 	// dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -88,51 +76,35 @@ int main() {
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	 //--------------------------------------------- vao and vbo for test triangle
-	 // Vertex Array Object
-	 GLuint VertexArrayID;
-	 glGenVertexArrays(1, &VertexArrayID);
-	 glBindVertexArray(VertexArrayID);
+	// --------------------------------------------------------------- Load Model and Texture
 
-
-	 // creating buffer vertices
-	 GLuint vertexbufferPos;
-	 glGenBuffers(1, &vertexbufferPos);
-	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
-	 // give our vertices to OpenGL.
-	 glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-	 // creating buffer normals
-	 GLuint vertexbufferNor;
-	 glGenBuffers(1, &vertexbufferNor);
-	 glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
-	 // give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_normals),
-			g_vertex_buffer_data_normals, GL_STATIC_DRAW);
-
-	 //------------------------------------------------------------ load Models
-
-//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/cube/cube.obj");
 	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
 
-	// ----------------------------------------------- create and compile GLSL program from shaders
-	 GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",SHADERS_PATH "/minimal.frag" );
+	const char* filename = RESOURCES_PATH"/kitty.jpg";
+	GLuint texture = utils::loadTexture(filename);
 
-	//-------------------------------------------------------------- Uniforms
+	// --------------------------------------------------------------- create and compile GLSL program from shaders
+	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
+	SHADERS_PATH "/minimal.frag");
+
+	// --------------------------------------------------------------- Uniforms
 	//handle for our "mvp" modelViwProjMatrix uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "mvp");
 	GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
 	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
-	// ---------------------------------------------------------------rendering loop
-	do{
+	//handle for our "textureSampler" uniform
+	GLuint TextureID = glGetUniformLocation(programID, "textureSampler");
+
+	// --------------------------------------------------------------- rendering loop
+	do {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//use shader
 		glUseProgram(programID);
 
-		 //---------------------------------------- ModelViewProjection
+		//---------------------------------------- ModelViewProjection
 		utils::computeMatricesFromInputs();
 		glm::mat4 projection = utils::getProjectionMatrix();
 		glm::mat4 view = utils::getViewMatrix();
@@ -146,23 +118,17 @@ int main() {
 		glUniformMatrix4fv(MatrixIDMV, 1, GL_FALSE, &mv[0][0]);
 		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &mv_ti[0][0]);
 
-		glBindVertexArray(VertexArrayID);
+		//---------------------------------------- Texture
+		// Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
-		// 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPos);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		// Set our "textureSampler" sampler to user Texture Unit 0
+		glUniform1i(TextureID, 0);
 
-		// 2nd attribute buffer : vertices
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbufferNor);
-		glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+		//---------------------------------------- draw (switch between triangle and model)
 
-		// ----------------------------------- draw (switch between triangle and model)
-
-//		glDrawArrays(GL_TRIANGLES, 0, 3);
 		ml->render();
-
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -170,13 +136,14 @@ int main() {
 	}
 
 	// check if the ESC key was pressed or the window was closed
-	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-	glfwWindowShouldClose(window) == 0 );
+	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
+			&& glfwWindowShouldClose(window) == 0);
 
 	//cleanup VBO
-	glDeleteBuffers(1, &vertexbufferPos);
-	glDeleteBuffers(1, &vertexbufferNor);
-	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteTextures(1, &TextureID);
+	glDeleteTextures(1, &MatrixID);
+	glDeleteTextures(1, &MatrixIDMV);
+	glDeleteTextures(1, &MatrixIDTIMV);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW

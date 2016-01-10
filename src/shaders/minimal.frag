@@ -1,12 +1,15 @@
+
 #version 330 core
 
 //Input
-in vec3 normal_vert;
 in vec3 vertex_pos;
 in vec3 normal;
+in vec2 uv;
+
+uniform sampler2D textureSampler;
 
 // Ouput data
-out vec4 fcolor;
+out vec3 color;
 
 void main()
 {
@@ -44,15 +47,20 @@ void main()
 	//vec3 reflection = normalize( reflect( -lightVec, normalize(normal)));
 	
 	//float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
-	
-  
     
     float a = cos_phi;
     //float b = cos_psi_n;
-    //fcolor = a * diffC + b * specC;
+    //color = a * diffC + b * specC;
     
-    fcolor = a * diffC;
-    
+    //----------------------------- choose output color
     // test output color = red 
 	//color = vec3(1,0,0);
+	
+    // lighting color
+    //vec4 fcolor = a * diffC;
+    //color= fcolor.xyz;
+	
+	// texture color = color of the texture at the specified UV 
+	color = texture (textureSampler, uv).rgb;
+	
     }
