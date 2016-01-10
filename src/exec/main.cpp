@@ -78,9 +78,11 @@ int main() {
 
 	// --------------------------------------------------------------- Load Model and Texture
 
-	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
 
-	const char* filename = RESOURCES_PATH"/kitty.jpg";
+//	const char* filename = RESOURCES_PATH"/kitty.jpg";
+	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
 	GLuint texture = utils::loadTexture(filename);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
