@@ -9,7 +9,7 @@ in vec2 uv;
 uniform sampler2D textureSampler;
 
 // Ouput data
-out vec3 color;
+out vec3 fcolor;
 
 void main()
 {
@@ -50,17 +50,39 @@ void main()
     
     float a = cos_phi;
     //float b = cos_psi_n;
-    //color = a * diffC + b * specC;
+    //fcolor = a * diffC + b * specC;
     
-    //----------------------------- choose output color
+    //----------------------------->>>> choose output color
     // test output color = red 
-	//color = vec3(1,0,0);
+	//fcolor = vec3(1,0,0);
 	
     // lighting color
-    //vec4 fcolor = a * diffC;
-    //color= fcolor.xyz;
+    //vec4 color = a * diffC;
+    //fcolor= fcolor.xyz;
 	
-	// texture color = color of the texture at the specified UV 
-	color = texture (textureSampler, uv).rgb;
+	// texture color = color of the texture at the specified UV
+	
+	// uv between [0,1] 
+	vec2 fUV;
+
+	//tone values for translate uv.x
+	// tone[]={0, 1/6, 2/6, 3/6, 4/6, 5/6}
+	float tone []={0, 0.166, 0.333, 0.5, 0.666, 0.833};
+	
+	//level values for
+	//x: scale uv.x, y: translate uv.y, z: scale uv.y
+	vec3 level [4];
+	level[0] = vec3(6.0, 0.466, 0.533);
+	level[1] = vec3(12.0, 0.2, 0.266); 
+	level[2] = vec3(24.0, 0.066, 0.133);
+	level[3] = vec3(48, 0.0, 0.066); 
+
+	//----------------------------->>>>choose tone and level
+	int l=0;
+	int t=2; 
+	fUV.x = (uv.x/level[l].x)+tone[t];
+	fUV.y = (uv.y*level[l].z)+level[l].y; 
+
+	fcolor = texture (textureSampler, fUV).rgb;
 	
     }

@@ -82,7 +82,8 @@ int main() {
 	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
 
 //	const char* filename = RESOURCES_PATH"/kitty.jpg";
-	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
+//	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
+	const char* filename = RESOURCES_PATH"/MipMap2.jpg";
 	GLuint texture = utils::loadTexture(filename);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
