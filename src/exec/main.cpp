@@ -83,7 +83,10 @@ int main() {
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 	GLuint texture_hatch00 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_00.jpg");
+	GLuint texture_hatch01 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_01.jpg");
 	GLuint texture_hatch02 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_02.jpg");
+	GLuint texture_hatch03 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_03.jpg");
+	GLuint texture_hatch04 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_04.jpg");
 	GLuint texture_hatch05 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_05.jpg");
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
@@ -98,7 +101,10 @@ int main() {
 
 	//handle for our "textureSampler" uniform
 	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
+	GLuint hatch01ID = glGetUniformLocation(programID, "hatch01");
 	GLuint hatch02ID = glGetUniformLocation(programID, "hatch02");
+	GLuint hatch03ID = glGetUniformLocation(programID, "hatch03");
+	GLuint hatch04ID = glGetUniformLocation(programID, "hatch04");
 	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
 
 	// --------------------------------------------------------------- rendering loop
@@ -127,12 +133,29 @@ int main() {
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
-		// Set our "textureSampler" sampler to user Texture Unit 0
+		// Set our "hatch00" sampler to user Texture Unit 0
 		glUniform1i(hatch00ID, 0);
 
 		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch01);
+		glUniform1i(hatch01ID, 1);
+
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, texture_hatch02);
-		glUniform1i(hatch02ID, 1);
+		glUniform1i(hatch02ID, 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch03);
+		glUniform1i(hatch03ID, 3);
+
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch04);
+		glUniform1i(hatch04ID, 4);
+
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch05);
+		glUniform1i(hatch05ID, 5);
+
 
 
 		//---------------------------------------- draw (switch between triangle and model)
