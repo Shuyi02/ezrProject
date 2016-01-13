@@ -78,12 +78,13 @@ int main() {
 
 	// --------------------------------------------------------------- Load Model and Texture
 
-//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
-	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
+	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+	utils::Model *ml_well = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
 
-//	const char* filename = RESOURCES_PATH"/kitty.jpg";
-	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
-	GLuint texture = utils::loadTexture(filename);
+	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
+	GLuint texture_hatch00 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_00.jpg");
+	GLuint texture_hatch02 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_02.jpg");
+	GLuint texture_hatch05 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_05.jpg");
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
@@ -96,7 +97,9 @@ int main() {
 	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
 
 	//handle for our "textureSampler" uniform
-	GLuint TextureID = glGetUniformLocation(programID, "textureSampler");
+	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
+	GLuint hatch02ID = glGetUniformLocation(programID, "hatch02");
+	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
 
 	// --------------------------------------------------------------- rendering loop
 	do {
@@ -123,14 +126,18 @@ int main() {
 		//---------------------------------------- Texture
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
+		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
 		// Set our "textureSampler" sampler to user Texture Unit 0
-		glUniform1i(TextureID, 0);
+		glUniform1i(hatch00ID, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch02);
+		glUniform1i(hatch02ID, 1);
+
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml->render();
+		ml_well->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -142,7 +149,7 @@ int main() {
 			&& glfwWindowShouldClose(window) == 0);
 
 	//cleanup VBO
-	glDeleteTextures(1, &TextureID);
+	glDeleteTextures(1, &hatch05ID);
 	glDeleteTextures(1, &MatrixID);
 	glDeleteTextures(1, &MatrixIDMV);
 	glDeleteTextures(1, &MatrixIDTIMV);

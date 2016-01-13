@@ -6,7 +6,8 @@ in vec3 vertex_pos;
 in vec3 normal;
 in vec2 uv;
 
-uniform sampler2D textureSampler;
+uniform sampler2D hatch00;
+uniform sampler2D hatch02;
 
 // Ouput data
 out vec3 color;
@@ -61,6 +62,6 @@ void main()
     //color= fcolor.xyz;
 	
 	// texture color = color of the texture at the specified UV 
-	color = texture (textureSampler, uv).rgb;
+	color = texture (hatch02, uv).rgb;
 	
     }
