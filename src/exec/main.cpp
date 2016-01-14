@@ -83,14 +83,8 @@ int main() {
 	utils::Model *ml_pumpkin = new utils::Model(RESOURCES_PATH "/Models/pumpkin/potiron.obj");
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
-//	GLuint texture_hatch00 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_00.jpg");
-//	GLuint texture_hatch01 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_01.jpg");
-//	GLuint texture_hatch02 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_02.jpg");
-//	GLuint texture_hatch03 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_03.jpg");
-//	GLuint texture_hatch04 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_04.jpg");
-//	GLuint texture_hatch05 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_05.jpg");
 
-	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2.jpg");
+	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2FARBE.jpg");
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
@@ -98,7 +92,6 @@ int main() {
 
 
 	//---------------------------------------------------------------- lightPosition
-	//TODO moving light!!!
 	glm::vec3 lightPos = glm::vec3(-5.0f, 6.0f, 6.0f);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
@@ -110,12 +103,7 @@ int main() {
 	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
 
 	//handle for our "textureSampler" uniform
-	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
-	GLuint hatch01ID = glGetUniformLocation(programID, "hatch01");
-	GLuint hatch02ID = glGetUniformLocation(programID, "hatch02");
-	GLuint hatch03ID = glGetUniformLocation(programID, "hatch03");
-	GLuint hatch04ID = glGetUniformLocation(programID, "hatch04");
-	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
+	GLuint mipMapID = glGetUniformLocation(programID, "mipMap");
 
 	glm::vec3 test = glm::vec3(-8.0f, 8.0f, 6.0f);
 
@@ -168,34 +156,15 @@ int main() {
 
 		//---------------------------------------- Texture
 		// Bind our texture in Texture Unit 0
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
-//		glUniform1i(hatch00ID, 0);
-//
-//		glActiveTexture(GL_TEXTURE1);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch01);
-//		glUniform1i(hatch01ID, 1);
-//
-//		glActiveTexture(GL_TEXTURE2);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch02);
-//		glUniform1i(hatch02ID, 2);
-//
-//		glActiveTexture(GL_TEXTURE3);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch03);
-//		glUniform1i(hatch03ID, 3);
-//
-//		glActiveTexture(GL_TEXTURE4);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch04);
-//		glUniform1i(hatch04ID, 4);
-//
-//		glActiveTexture(GL_TEXTURE5);
-//		glBindTexture(GL_TEXTURE_2D, texture_hatch05);
-//		glUniform1i(hatch05ID, 5);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mipMap);
+		// Set our "textureSampler" sampler to user Texture Unit 0
+		glUniform1i(mipMapID, 0);
 
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_pumpkin->render();
+		ml_well->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -207,12 +176,7 @@ int main() {
 			&& glfwWindowShouldClose(window) == 0);
 
 	//cleanup VBO
-	glDeleteTextures(1, &hatch00ID);
-	glDeleteTextures(1, &hatch04ID);
-	glDeleteTextures(1, &hatch03ID);
-	glDeleteTextures(1, &hatch02ID);
-	glDeleteTextures(1, &hatch01ID);
-	glDeleteTextures(1, &hatch00ID);
+	glDeleteTextures(1, &mipMapID);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW
