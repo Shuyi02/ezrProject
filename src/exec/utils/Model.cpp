@@ -69,10 +69,30 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	}
 
 	if(mesh->HasTextureCoords(0)) {
+		//get TextureCoords and normalize Coords between 0 and 1
 		float *texCoords = new float[mesh->mNumVertices * 2];
+		float minX=mesh->mTextureCoords[0][0].x;
+		float maxX=mesh->mTextureCoords[0][0].x;
+
+		float minY=mesh->mTextureCoords[0][0].y;
+		float maxY=mesh->mTextureCoords[0][0].y;
+
 		for(int i = 0; i < mesh->mNumVertices; ++i) {
-			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
-			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
+					texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
+					if (texCoords[i * 2] <minX) minX=texCoords[i * 2] ;
+					if (texCoords[i * 2] >maxX) maxX=texCoords[i * 2] ;
+
+					texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
+					if (texCoords[i * 2+1] <minY) minY=texCoords[i * 2+1] ;
+					if (texCoords[i * 2+1] >maxY) maxY=texCoords[i * 2+1] ;
+		}
+
+		float sumX=maxX-minX;
+		float sumY=maxY-minY;
+
+		for(int i = 0; i < mesh->mNumVertices; ++i) {
+				texCoords[i * 2] = (texCoords[i * 2]-minX)/sumX;
+				texCoords[i * 2 + 1] = (texCoords[i * 2 + 1]-minY)/sumY;
 		}
 
 		glGenBuffers(1, &_vbo[2]);
