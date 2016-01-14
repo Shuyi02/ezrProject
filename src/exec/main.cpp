@@ -96,7 +96,7 @@ int main() {
 
 	//---------------------------------------------------------------- lightPosition
 	//TODO moving light!!!
-	glm::vec3 lightPos = glm::vec3(-5.0f, 10.0f, 0.0f);
+	glm::vec3 lightPos = glm::vec3(-5.0f, 6.0f, 6.0f);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
 	// --------------------------------------------------------------- Uniforms
@@ -114,6 +114,8 @@ int main() {
 	GLuint hatch04ID = glGetUniformLocation(programID, "hatch04");
 	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
 
+	glm::vec3 test = glm::vec3(-8.0f, 8.0f, 6.0f);
+
 	// --------------------------------------------------------------- rendering loop
 	do {
 
@@ -127,7 +129,6 @@ int main() {
 		glm::mat4 m = glm::mat4(1.0);
 		glm::mat4 v = utils::getViewMatrix();
 		glm::mat4 p = utils::getProjectionMatrix();
-//		glm::mat4 mvp = projection * view * model;
 		glm::mat4 mv_ti = glm::transpose(glm::inverse(v*m));
 
 		//send transformation to the currently bound shader in the mvp uniform
@@ -136,7 +137,30 @@ int main() {
 		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
 		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
 
-		//light pos to shader
+		//---------------------------------------- Light Position
+//		lightPos.x += 0.01;
+//		//light pos to shader
+//		if(lightPos.x >= 8.0){
+//			lightPos.x = -8.0;
+//		}
+		if(glfwGetKey(window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
+			lightPos.x += 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS){
+			lightPos.x -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_UP ) == GLFW_PRESS){
+			lightPos.y += 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS){
+			lightPos.y -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_N ) == GLFW_PRESS){
+			lightPos.z -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_M ) == GLFW_PRESS){
+			lightPos.z += 0.01;
+		}
 		glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
 
 		//---------------------------------------- Texture

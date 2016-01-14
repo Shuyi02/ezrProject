@@ -20,22 +20,23 @@ out vec3 fcolor;
 void main()
 {	
 	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
-	float lightPower = 80.0f;
+	float lightPower = 50.0f;
 	
 	float distance = length(lightPos_camera - vertex_camera);
 	
-	//-------------------------------------------------------diffuse
+	//----------------------------------------------------------------diffuse
 	vec3 n = normal_camera;
 	vec3 l = normalize(lightPos_camera - vertex_camera); //inverse direction of light
 	float cosTheta = clamp( dot( n,l ), 0.0, 1.0 );
 	
-	//-------------------------------------------------------specular
-	vec3 eye = normalize(vec3(0,0,0) - vertex_camera); //inverse direction of the eye
+	//----------------------------------------------------------------specular
+	vec3 eye = normalize(vec3(0,0,10) - vertex_camera); //inverse direction of the eye
 	vec3 r = reflect(-l,n);
 	float cosAlpha = clamp( dot( eye,r ), 0.0 ,1.0 );
 	
-	//----------------------------------------------------- six way blend
-	float hatchBrightness = min(1.0, cosTheta+cosAlpha) * 6.0;
+	//--------------------------------------------------------------- six way blend
+	//float hatchBrightness = min(1.0, cosTheta+cosAlpha) * 6.0;
+	float hatchBrightness = min(1.0, cosTheta) * 6.0;
 	
 	float weight0, weight1, weight2, weight3, weight4, weight5, weightWhite = 0.0;
 	
@@ -66,7 +67,7 @@ void main()
 	vec4 h4 = texture(hatch04,uv) * weight4;
 	vec4 h5 = texture(hatch05,uv) * weight5;
 	
-	//----------------------------------------------------- fragment color
+	//----------------------------------------------------------------- fragment color
 	//fColor = diffLightColor * lightPower * cosTheta / (distance*distance) +
 	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
