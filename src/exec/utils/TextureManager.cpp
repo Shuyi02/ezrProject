@@ -2,6 +2,8 @@
 #include "../utils/TextureManager.h"
 
 #include <iostream>
+#include <sstream>
+
 using namespace std;
 
 namespace utils {
@@ -39,6 +41,43 @@ GLuint loadTexture(const char* filename) {
 
 	if (data) stbi_image_free(data);
 
+	return texture;
+}
+
+GLuint loadMipMapTexture(string path, int levels){
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
+
+	int comp=0;
+	int imageWidth=0;
+	int imageHeight=0;
+
+
+	//path = ResourcePATH/hatches/hatch0
+	for(int i = 0; i < levels; i++){
+
+		stringstream ss;
+		ss<<path<<i<<".bmp";
+
+		string filename = ss.str();
+		ss.clear();
+
+		cout<<"filename: "<<filename<<endl;
+
+		unsigned char * data = loadImage(filename.c_str(), &imageWidth, &imageHeight, &comp);
+
+		glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, imageWidth, imageHeight, 0,
+				(comp == 4) ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+
+		if (data) stbi_image_free(data);
+
+	}
 	return texture;
 }
 }

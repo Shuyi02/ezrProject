@@ -87,38 +87,6 @@ void main()
 	int t=0; 
     
     //------------------------------------------------- blend hatch
-	/*vec4 white = vec4(1.0, 1.0, 1.0, 1.0) * weightWhite;
-	
-	t=0;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-	vec4 h0 = texture(mipMap,fUV) * weight0;
-	
-	t=1;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-	vec4 h1 = texture(mipMap,fUV) * weight1;
-	
-	t=2;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-	vec4 h2 = texture(mipMap,fUV) * weight2;
-	
-	t=3;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-	vec4 h3 = texture(mipMap,fUV) * weight3;
-	
-	t=4;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 	
-	vec4 h4 = texture(mipMap,fUV) * weight4;
-	//vec4 h4 = texture(mipMap,fUV);
-	
-	t=5;
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-	vec4 h5 = texture(mipMap,fUV) * weight5;*/
 	
 	vec4 white = vec4(1.0, 1.0, 1.0, 1.0) * weightWhite;
 	vec4 h0 = texture(hatch00,uv) * weight0;

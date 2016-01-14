@@ -85,12 +85,13 @@ int main() {
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 
 	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2SCHOEN.jpg");
-	GLuint texture_hatch00 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_00.jpg");
-	GLuint texture_hatch01 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_01.jpg");
-	GLuint texture_hatch02 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_02.jpg");
-	GLuint texture_hatch03 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_03.jpg");
-	GLuint texture_hatch04 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_04.jpg");
-	GLuint texture_hatch05 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_05.jpg");
+
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch0", 4);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch1", 4);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch2", 4);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch3", 4);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch4", 4);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch5", 4);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
