@@ -66,7 +66,7 @@ void main()
 	vec2 fUV;
 
 	//tone values for translate uv.x
-	float tone[]={0.0, 1.0/6.0, 2.0/6.0, 3.0/6.0, 4.0/6.0, 5.0/6.0};
+	float tone[6]=float[6](0.0, 1.0/6.0, 2.0/6.0, 3.0/6.0, 4.0/6.0, 5.0/6.0);
 	
 	//level values for
 	//x: scale uv.x, y: translate uv.y, z: scale uv.y
