@@ -66,19 +66,18 @@ void main()
 	vec2 fUV;
 
 	//tone values for translate uv.x
-	// tone[]={0, 1/6, 2/6, 3/6, 4/6, 5/6}
-	float tone []={0, 0.166, 0.333, 0.5, 0.666, 0.833};
+	float tone[]={0.0, 1.0/6.0, 2.0/6.0, 3.0/6.0, 4.0/6.0, 5.0/6.0};
 	
 	//level values for
 	//x: scale uv.x, y: translate uv.y, z: scale uv.y
 	vec3 level [4];
-	level[0] = vec3(6.0, 0.466, 0.533);
-	level[1] = vec3(12.0, 0.2, 0.266); 
-	level[2] = vec3(24.0, 0.066, 0.133);
-	level[3] = vec3(48, 0.0, 0.066); 
+	level[0] = vec3(6.0, 7.0/15.0, 8.0/15.0);
+	level[1] = vec3(12.0, 1.0/5.0, 4.0/15.0); 
+	level[2] = vec3(24.0, 1.0/15.0, 2.0/15.0);
+	level[3] = vec3(48, 0.0, 1.0/15.0); 
 
 	//----------------------------->>>>choose tone and level
-	int l=0;
+	int l=3;
 	int t=2; 
 	fUV.x = (uv.x/level[l].x)+tone[t];
 	fUV.y = (uv.y*level[l].z)+level[l].y; 

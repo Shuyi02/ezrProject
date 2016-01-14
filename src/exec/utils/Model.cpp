@@ -87,15 +87,12 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 					if (texCoords[i * 2+1] >maxY) maxY=texCoords[i * 2+1] ;
 		}
 
-		if(minX>0)minX=0.0;
-		if(minY>0)minY=0.0;
-
-		float sumX=fabs(minX)+fabs(maxX)+0.5;
-		float sumY=fabs(minY)+fabs(maxY)+0.5;
+		float sumX=maxX-minX;
+		float sumY=maxY-minY;
 
 		for(int i = 0; i < mesh->mNumVertices; ++i) {
-			texCoords[i * 2] = (texCoords[i * 2]+fabs(minX))/sumX;
-			texCoords[i * 2 + 1] = (texCoords[i * 2 + 1]+fabs(minY))/sumY;
+				texCoords[i * 2] = (texCoords[i * 2]-minX)/sumX;
+				texCoords[i * 2 + 1] = (texCoords[i * 2 + 1]-minY)/sumY;
 		}
 
 		glGenBuffers(1, &_vbo[2]);

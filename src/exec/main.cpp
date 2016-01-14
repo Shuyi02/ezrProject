@@ -83,7 +83,7 @@ int main() {
 
 //	const char* filename = RESOURCES_PATH"/kitty.jpg";
 //	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
-	const char* filename = RESOURCES_PATH"/MipMap2.jpg";
+	const char* filename = RESOURCES_PATH"/MipMap2FARBE.jpg";
 	GLuint texture = utils::loadTexture(filename);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
