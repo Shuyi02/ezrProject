@@ -80,6 +80,7 @@ int main() {
 
 	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
 	utils::Model *ml_well = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
+	utils::Model *ml_pumpkin = new utils::Model(RESOURCES_PATH "/Models/pumpkin/potiron.obj");
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 	GLuint texture_hatch00 = utils::loadTexture(RESOURCES_PATH"/hatchTest/hatch_00.jpg");
@@ -137,7 +138,7 @@ int main() {
 		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
 		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
 
-		//---------------------------------------- Light Position
+		//------------------------------------------------ Light Position
 //		lightPos.x += 0.01;
 //		//light pos to shader
 //		if(lightPos.x >= 8.0){
@@ -192,7 +193,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_well->render();
+		ml_pumpkin->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);

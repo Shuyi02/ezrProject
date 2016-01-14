@@ -36,7 +36,7 @@ void main()
 	
 	//--------------------------------------------------------------- six way blend
 	//float hatchBrightness = min(1.0, cosTheta+cosAlpha) * 6.0;
-	float hatchBrightness = min(1.0, cosTheta) * 6.0;
+	float hatchBrightness = min(1.0, cosTheta+(pow(cosAlpha,3))) * 6.0;
 	
 	float weight0, weight1, weight2, weight3, weight4, weight5, weightWhite = 0.0;
 	
