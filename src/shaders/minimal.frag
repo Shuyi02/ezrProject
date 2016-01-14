@@ -45,18 +45,8 @@ void main()
 	level[2] = vec3(24.0, 1.0/15.0, 2.0/15.0);
 	level[3] = vec3(48, 0.0, 1.0/15.0); 
 
-	//----------------------------------------choose tone and level
-	int l=0;
-	int t=2; 
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-
-	fcolor = texture (mipMap, fUV).rgb;
-
-
 	//--------------------------------------------------------------- six way blend
-	//float hatchBrightness = min(1.0, cosTheta+cosAlpha) * 6.0;
-	float hatchBrightness = min(1.0,cosTheta) * 5.0;
+	float hatchBrightness = min(1.0,cosTheta) * 6.0;
 	
 	float weight0, weight1, weight2, weight3, weight4, weight5, weightWhite = 0.0;
 	
@@ -79,7 +69,14 @@ void main()
         weight4 = 1.0 - (1.0 - hatchBrightness);
         weight5 = 1.0 - weight4;
     }
+    
+	//----------------------------------------choose tone and level
+	int l=0;
+	int t; 
+    
+    //------------------------------------------------- blend hatch
 	vec4 white = vec4(1.0, 1.0, 1.0, 1.0) * weightWhite;
+	
 	t=0;
 	fUV.x = (uv.x/level[l].x)+tone[t];
 	fUV.y = (uv.y*level[l].z)+level[l].y; 
@@ -106,15 +103,15 @@ void main()
 	vec4 h4 = texture(mipMap,fUV) * weight4;
 	//vec4 h4 = texture(mipMap,fUV);
 	
-	//t=5;
-	//fUV.x = (uv.x/level[l].x)+tone[t];
-	//fUV.y = (uv.y*level[l].z)+level[l].y; 
-	//vec4 h5 = texture(mipMap,fUV) * weight5;
+	t=5;
+	fUV.x = (uv.x/level[l].x)+tone[t];
+	fUV.y = (uv.y*level[l].z)+level[l].y; 
+	vec4 h5 = texture(mipMap,fUV) * weight5;
 	
 	
 	//----------------------------------------------------------------- fragment color
 	//fColor = diffLightColor * lightPower * cosTheta / (distance*distance) +
 	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
-	fcolor = (white + h1 + h2 + h3 + h4).xyz;
+	fcolor = (white + h1 + h2 + h3 + h4 + h5).xyz;
 }
