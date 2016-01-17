@@ -7,8 +7,7 @@
 
 // Include GLFW
 #include <GLFW/glfw3.h>
-//the "extern" keyword here is to access the variable "window" in main.cpp. This is a hack to keep the tutorials simple.
-//please avoid this.
+//the "extern" keyword here is to access the variable "window" in main.cpp. This is a hack.
 extern GLFWwindow* window;
 
 // Include GLM

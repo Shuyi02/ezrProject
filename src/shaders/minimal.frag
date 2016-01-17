@@ -2,65 +2,40 @@
 #version 330 core
 
 //Input
-in vec3 vertex_pos;
-in vec3 normal;
+in vec3 vertex_camera;
+in vec3 normal_camera;
+in vec3 lightPos_camera;
 in vec2 uv;
 
-uniform sampler2D textureSampler;
+uniform sampler2D mipMap;
+uniform sampler2D hatch00;
+uniform sampler2D hatch01;
+uniform sampler2D hatch02;
+uniform sampler2D hatch03;
+uniform sampler2D hatch04;
+uniform sampler2D hatch05;
 
 // Ouput data
 out vec3 fcolor;
 
 void main()
-{
-
-	//Shuyi
-	//fcolor = vec3(dot(normalize(normal), normalize(vec3(1., 2., 1.))));
-
-	// test to show normals
-	//fcolor = normalize(normal);
+{	
+	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
+	float lightPower = 50.0f;
 	
-	//colors
-	vec4 diffC;
-	diffC = vec4(1.0,0.0,0.0,1.0);
-	vec4 specC;
-	specC = vec4(1.0,1.0,0.0,1.0);
-
-
-	//position of light
-	vec3 lightPos = vec3(0.0f, 0.0f, 1.0f);
+	float distance = length(lightPos_camera - vertex_camera);
 	
-	//vector from surface to light 
-    vec3 lightVec = normalize(lightPos - vertex_pos.xyz);
+	//----------------------------------------------------------------diffuse
+	vec3 n = normal_camera;
+	vec3 light = normalize(lightPos_camera - vertex_camera); //inverse direction of light
+	float cosTheta = clamp( dot( n,light ), 0.0, 1.0 );
+	
+	//----------------------------------------------------------------specular
+	vec3 eye = normalize(-vertex_camera); //inverse direction of the eye
+	vec3 r = reflect(-light,n);
+	float cosAlpha = clamp( dot( eye,r ), 0.0 ,1.0 );
     
-    //----------------------------- diffuse 
-    //angle between normal and light direction, if negativ then 0
-    float cos_phi = max( dot( normalize(normal.xyz), lightVec), 0.0f);
-    
-    //----------------------------- specular IS BUGGY
-    //TODO eyePos sollte uebergeben werden?
-    // eyePos is of camera
-    //vec3 eyePos = vec3(0.0f,0.0f,5.0f);
-    // towards the camera
-	//vec3 eye = normalize(eyePos - vertex_pos.xyz);
-	// direction in which the triangle reflects the light: reflect(-lightVec*n)
-	//vec3 reflection = normalize( reflect( -lightVec, normalize(normal)));
-	
-	//float cos_psi_n = pow( max( dot( reflection, eye), 0.0f), 50);
-    
-    float a = cos_phi;
-    //float b = cos_psi_n;
-    //fcolor = a * diffC + b * specC;
-    
-    //----------------------------->>>> choose output color
-    // test output color = red 
-	//fcolor = vec3(1,0,0);
-	
-    // lighting color
-    //vec4 color = a * diffC;
-    //fcolor= fcolor.xyz;
-	
-	// texture color = color of the texture at the specified UV
+    //------------------------------------------------ mipMap spaß
 	
 	// uv between [0,1] 
 	vec2 fUV;
@@ -76,12 +51,54 @@ void main()
 	level[2] = vec3(24.0, 1.0/15.0, 2.0/15.0);
 	level[3] = vec3(48, 0.0, 1.0/15.0); 
 
-	//----------------------------->>>>choose tone and level
-	int l=3;
-	int t=2; 
-	fUV.x = (uv.x/level[l].x)+tone[t];
-	fUV.y = (uv.y*level[l].z)+level[l].y; 
-
-	fcolor = texture (textureSampler, fUV).rgb;
+	//--------------------------------------------------------------- six way blend
+	float hatchBrightness = min(1.0,cosTheta) * 6.0;
 	
+	float weightWhite = 0.0;
+	float weight0 = 0.0;
+	float weight1 = 0.0;
+	float weight2 = 0.0;
+	float weight3 = 0.0;
+	float weight4 = 0.0;
+	float weight5 = 0.0;
+	
+	if(hatchBrightness > 5.0){
+		weightWhite = 1.0 - (6.0-hatchBrightness);
+		weight0 = 1.0 - weightWhite;
+	}else if(hatchBrightness > 4.0){
+		weight0 = 1.0 - (5.0 - hatchBrightness);
+        weight1 = 1.0 - weight0;
+	}else if(hatchBrightness > 3.0) {
+        weight1 = 1.0 - (4.0 - hatchBrightness);
+        weight2 = 1.0 - weight1;
+    }else if(hatchBrightness > 2.0) {
+        weight2 = 1.0 - (3.0 - hatchBrightness);
+        weight3 = 1.0 - weight2;
+    } else if(hatchBrightness > 1.0) {
+        weight3 = 1.0 - (2.0 - hatchBrightness);
+        weight4 = 1.0 - weight3;
+    } else {
+        weight4 = 1.0 - (1.0 - hatchBrightness);
+        weight5 = 1.0 - weight4;
     }
+    
+	//------------------------------------------------- choose tone and level
+	int l=0;
+	int t=0; 
+    
+    //------------------------------------------------- blend hatch
+	
+	vec4 white = vec4(1.0, 1.0, 1.0, 1.0) * weightWhite;
+	vec4 h0 = texture(hatch00,uv) * weight0;
+	vec4 h1 = texture(hatch01,uv) * weight1;
+	vec4 h2 = texture(hatch02,uv) * weight2;
+	vec4 h3 = texture(hatch03,uv) * weight3;
+	vec4 h4 = texture(hatch04,uv) * weight4;
+	vec4 h5 = texture(hatch05,uv) * weight5;
+	
+	//----------------------------------------------------------------- fragment color
+	//fcolor = diffLightColor * lightPower * cosTheta / (distance*distance) +
+	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
+	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
+	fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
+}

@@ -78,26 +78,49 @@ int main() {
 
 	// --------------------------------------------------------------- Load Model and Texture
 
-//	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
-	utils::Model *ml = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
+	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+	utils::Model *ml_well = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
+	utils::Model *ml_pumpkin = new utils::Model(RESOURCES_PATH "/Models/pumpkin/potiron.obj");
 
-//	const char* filename = RESOURCES_PATH"/kitty.jpg";
-//	const char* filename = RESOURCES_PATH"/hatchTest/hatch_0.jpg";
-	const char* filename = RESOURCES_PATH"/MipMap2.jpg";
-	GLuint texture = utils::loadTexture(filename);
+	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
+
+	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2SCHOEN.jpg");
+
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch0", 4);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch1", 4);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch2", 4);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch3", 4);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch4", 4);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch5", 4);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
 	SHADERS_PATH "/minimal.frag");
 
+
+	//---------------------------------------------------------------- lightPosition
+	glm::vec3 lightPos = glm::vec3(-5.0f, 6.0f, 6.0f);
+	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
+
 	// --------------------------------------------------------------- Uniforms
 	//handle for our "mvp" modelViwProjMatrix uniform
-	GLuint MatrixID = glGetUniformLocation(programID, "mvp");
-	GLuint MatrixIDMV = glGetUniformLocation(programID, "mv");
-	GLuint MatrixIDTIMV = glGetUniformLocation(programID, "mv_ti");
+	GLuint MatrixM = glGetUniformLocation(programID, "m");
+	GLuint MatrixV = glGetUniformLocation(programID, "v");
+	GLuint MatrixP = glGetUniformLocation(programID, "p");
+	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
 
 	//handle for our "textureSampler" uniform
-	GLuint TextureID = glGetUniformLocation(programID, "textureSampler");
+	GLuint mipMapID = glGetUniformLocation(programID, "mipMap");
+
+	//handle for our "textureSampler" uniform
+	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
+	GLuint hatch01ID = glGetUniformLocation(programID, "hatch01");
+	GLuint hatch02ID = glGetUniformLocation(programID, "hatch02");
+	GLuint hatch03ID = glGetUniformLocation(programID, "hatch03");
+	GLuint hatch04ID = glGetUniformLocation(programID, "hatch04");
+	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
+
+	glm::vec3 test = glm::vec3(-8.0f, 8.0f, 6.0f);
 
 	// --------------------------------------------------------------- rendering loop
 	do {
@@ -107,31 +130,81 @@ int main() {
 		//use shader
 		glUseProgram(programID);
 
-		//---------------------------------------- ModelViewProjection
+		//---------------------------------------- Matrices
 		utils::computeMatricesFromInputs();
-		glm::mat4 projection = utils::getProjectionMatrix();
-		glm::mat4 view = utils::getViewMatrix();
-		glm::mat4 model = glm::mat4(1.0);
-		glm::mat4 mvp = projection * view * model;
-		glm::mat4 mv = view * model;
-		glm::mat4 mv_ti = glm::transpose(glm::inverse(mv));
+		glm::mat4 m = glm::mat4(1.0);
+		glm::mat4 v = utils::getViewMatrix();
+		glm::mat4 p = utils::getProjectionMatrix();
+		glm::mat4 mv_ti = glm::transpose(glm::inverse(v*m));
 
 		//send transformation to the currently bound shader in the mvp uniform
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-		glUniformMatrix4fv(MatrixIDMV, 1, GL_FALSE, &mv[0][0]);
-		glUniformMatrix4fv(MatrixIDTIMV, 1, GL_FALSE, &mv_ti[0][0]);
+		glUniformMatrix4fv(MatrixM, 1, GL_FALSE, &m[0][0]);
+		glUniformMatrix4fv(MatrixV, 1, GL_FALSE, &v[0][0]);
+		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
+		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
+
+		//------------------------------------------------ Light Position
+//		lightPos.x += 0.01;
+//		//light pos to shader
+//		if(lightPos.x >= 8.0){
+//			lightPos.x = -8.0;
+//		}
+		if(glfwGetKey(window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
+			lightPos.x += 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS){
+			lightPos.x -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_UP ) == GLFW_PRESS){
+			lightPos.y += 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS){
+			lightPos.y -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_N ) == GLFW_PRESS){
+			lightPos.z -= 0.01;
+		}
+		if(glfwGetKey(window, GLFW_KEY_M ) == GLFW_PRESS){
+			lightPos.z += 0.01;
+		}
+		glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
 
 		//---------------------------------------- Texture
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
+		glBindTexture(GL_TEXTURE_2D, mipMap);
 		// Set our "textureSampler" sampler to user Texture Unit 0
-		glUniform1i(TextureID, 0);
+		glUniform1i(mipMapID, 0);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
+		glUniform1i(hatch00ID, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch01);
+		glUniform1i(hatch01ID, 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch02);
+		glUniform1i(hatch02ID, 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch03);
+		glUniform1i(hatch03ID, 3);
+
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch04);
+		glUniform1i(hatch04ID, 4);
+
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, texture_hatch05);
+		glUniform1i(hatch05ID, 5);
+
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml->render();
+		ml_well->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -143,10 +216,13 @@ int main() {
 			&& glfwWindowShouldClose(window) == 0);
 
 	//cleanup VBO
-	glDeleteTextures(1, &TextureID);
-	glDeleteTextures(1, &MatrixID);
-	glDeleteTextures(1, &MatrixIDMV);
-	glDeleteTextures(1, &MatrixIDTIMV);
+	glDeleteTextures(1, &hatch05ID);
+	glDeleteTextures(1, &hatch04ID);
+	glDeleteTextures(1, &hatch03ID);
+	glDeleteTextures(1, &hatch02ID);
+	glDeleteTextures(1, &hatch01ID);
+	glDeleteTextures(1, &hatch00ID);
+	glDeleteTextures(1, &mipMapID);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW
