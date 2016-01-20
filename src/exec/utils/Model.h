@@ -31,7 +31,7 @@ public:
 		void render();
 
 		GLuint _vao;
-		GLuint _vbo[4];
+		GLuint _vbo[5];
 
 		unsigned int _elementCount;
 	};

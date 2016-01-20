@@ -86,12 +86,12 @@ int main() {
 
 	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2SCHOEN.jpg");
 
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch0", 4);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch1", 4);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch2", 4);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch3", 4);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch4", 4);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch5", 4);
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch0", 4);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch1", 4);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch2", 4);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 4);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 4);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 4);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",

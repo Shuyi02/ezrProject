@@ -25,7 +25,8 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	_vbo[0] = NULL;
 	_vbo[1] = NULL;
 	_vbo[2] = NULL;
-//	_vbo[3] = NULL;
+	_vbo[3] = NULL;
+	_vbo[4] = NULL;
 
 	glGenVertexArrays(1, &_vao);
 	glBindVertexArray(_vao);
@@ -56,6 +57,9 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			normals[i * 3] = mesh->mNormals[i].x;
 			normals[i * 3 + 1] = mesh->mNormals[i].y;
 			normals[i * 3 + 2] = mesh->mNormals[i].z;
+//			std::cout<<"has normal: x: "<<normals[i * 3]<<" "<<std::endl;
+//			std::cout<<"has normal: y: "<<normals[i * 3 +1]<<" "<<std::endl;
+//			std::cout<<"has normal: z: "<<normals[i * 3+2]<<" "<<std::endl;
 		}
 
 		glGenBuffers(1, &_vbo[1]);
@@ -78,13 +82,13 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 		float maxY=mesh->mTextureCoords[0][0].y;
 
 		for(int i = 0; i < mesh->mNumVertices; ++i) {
-					texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
-					if (texCoords[i * 2] <minX) minX=texCoords[i * 2] ;
-					if (texCoords[i * 2] >maxX) maxX=texCoords[i * 2] ;
+			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
+			if (texCoords[i * 2] <minX) minX=texCoords[i * 2] ;
+			if (texCoords[i * 2] >maxX) maxX=texCoords[i * 2] ;
 
-					texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
-					if (texCoords[i * 2+1] <minY) minY=texCoords[i * 2+1] ;
-					if (texCoords[i * 2+1] >maxY) maxY=texCoords[i * 2+1] ;
+			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
+			if (texCoords[i * 2+1] <minY) minY=texCoords[i * 2+1] ;
+			if (texCoords[i * 2+1] >maxY) maxY=texCoords[i * 2+1] ;
 		}
 
 		float sumX=maxX-minX;
@@ -123,6 +127,27 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 		delete[] indices;
 	}
 
+	//TANGENTEN
+	if(mesh->HasTangentsAndBitangents()) {
+		float *tangents = new float[mesh->mNumVertices * 3];
+		for(int i = 0; i < mesh->mNumFaces; ++i) {
+			tangents[i * 3] = mesh->mTangents[i].x;
+			tangents[i * 3 + 1] = mesh->mTangents[i].y;
+			tangents[i * 3 + 2] = mesh->mTangents[i].z;
+			std::cout<<"has tangents: x: "<<tangents[i * 3]<<" "<<std::endl;
+			std::cout<<"has tangents: y: "<<tangents[i * 3+1]<<" "<<std::endl;
+			std::cout<<"has tangents: z: "<<tangents[i * 3+2]<<" "<<std::endl;
+		}
+
+		glGenBuffers(1, &_vbo[4]);
+		glBindBuffer(GL_ARRAY_BUFFER, _vbo[4]);
+		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), tangents, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray (4);
+
+		delete[] tangents;
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -160,7 +185,7 @@ void Model::MeshEntry::render() {
 
 Model::Model(const char *filename) {
 			Assimp::Importer importer;
-			const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FixInfacingNormals);
+			const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace);
 			if (!scene) {
 				printf("Unable to load mesh: %s\n", importer.GetErrorString());
 			}
