@@ -6,8 +6,8 @@ in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
 in vec2 uv;
+in vec3 tangents;
 
-uniform sampler2D mipMap;
 uniform sampler2D hatch00;
 uniform sampler2D hatch01;
 uniform sampler2D hatch02;
@@ -34,22 +34,6 @@ void main()
 	vec3 eye = normalize(-vertex_camera); //inverse direction of the eye
 	vec3 r = reflect(-light,n);
 	float cosAlpha = clamp( dot( eye,r ), 0.0 ,1.0 );
-    
-    //------------------------------------------------ mipMap spaß
-	
-	// uv between [0,1] 
-	vec2 fUV;
-
-	//tone values for translate uv.x
-	float tone[6]=float[6](0.0, 1.0/6.0, 2.0/6.0, 3.0/6.0, 4.0/6.0, 5.0/6.0);
-	
-	//level values for
-	//x: scale uv.x, y: translate uv.y, z: scale uv.y
-	vec3 level [4];
-	level[0] = vec3(6.0, 7.0/15.0, 8.0/15.0);
-	level[1] = vec3(12.0, 1.0/5.0, 4.0/15.0); 
-	level[2] = vec3(24.0, 1.0/15.0, 2.0/15.0);
-	level[3] = vec3(48, 0.0, 1.0/15.0); 
 
 	//--------------------------------------------------------------- six way blend
 	float hatchBrightness = min(1.0,cosTheta) * 6.0;
@@ -82,10 +66,6 @@ void main()
         weight5 = 1.0 - weight4;
     }
     
-	//------------------------------------------------- choose tone and level
-	int l=0;
-	int t=0; 
-    
     //------------------------------------------------- blend hatch
 	
 	vec4 white = vec4(1.0, 1.0, 1.0, 1.0) * weightWhite;
@@ -101,4 +81,6 @@ void main()
 	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
 	fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
+	
+	//fcolor = tangents;
 }

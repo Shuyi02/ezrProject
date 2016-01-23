@@ -3,6 +3,8 @@
 layout(location = 0) in vec3 vert_modelspace;
 layout(location = 1) in vec3 normal_modelspace;
 layout(location = 2) in vec2 vertexUV;
+layout(location = 3) in int index;
+layout(location = 4) in vec3 tans;
 
 uniform mat4 m;
 uniform mat4 v;
@@ -14,6 +16,7 @@ out vec3 vertex_camera;
 out vec3 normal_camera;
 out vec2 uv;
 out vec3 lightPos_camera;
+out vec3 tangents;
 
 void main(){
 
@@ -25,6 +28,15 @@ void main(){
 	
 	lightPos_camera = (v * m * vec4(lightPos_Model,1.)).xyz;
 	
+	//----------------------------------------------spherical uv
+	//float pi = 3.14159265;
+	//float su = asin(normalize(vert_modelspace).x)/pi + 0.5;
+	//float sv = asin(normalize(vert_modelspace).y)/pi + 0.5;
+	//vec2 suv = vec2(su,sv)*5.0;	
+	//uv = suv;
+	
+	//-----------------------------------------------standard uv
 	uv = vertexUV;
-
+	
+	tangents = tans;
 }

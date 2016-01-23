@@ -80,11 +80,10 @@ int main() {
 
 	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
 	utils::Model *ml_well = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
+	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
 	utils::Model *ml_pumpkin = new utils::Model(RESOURCES_PATH "/Models/pumpkin/potiron.obj");
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
-
-	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2SCHOEN.jpg");
 
 	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch0", 4);
 	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch1", 4);
@@ -171,14 +170,8 @@ int main() {
 
 		//---------------------------------------- Texture
 		// Bind our texture in Texture Unit 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mipMap);
-		// Set our "textureSampler" sampler to user Texture Unit 0
-		glUniform1i(mipMapID, 0);
-
-
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
+		// Set our "textureSampler" sampler to user Texture Unit 0
 		glUniform1i(hatch00ID, 0);
 
 		glActiveTexture(GL_TEXTURE1);
@@ -204,7 +197,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_well->render();
+		ml_sphere->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
