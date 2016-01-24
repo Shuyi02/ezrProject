@@ -82,5 +82,5 @@ void main()
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
 	fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
 	
-	//fcolor = tangents;
+	//fcolor = vec3(uv,0.0);
 }

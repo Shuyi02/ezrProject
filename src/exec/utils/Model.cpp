@@ -11,15 +11,9 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 
+#include "Utils.h"
+
 namespace utils {
-
-
-glm::vec3 projectIntoPlane(glm::vec3 globalDirection, glm::vec3 a, glm::vec3 b, glm::vec3 c){
-	//calc normal
-	glm::vec3 normal = glm::normalize(glm::cross(glm::vec3(b-a), glm::vec3(c-a)));
-	//project
-	return glm::normalize(globalDirection - (glm::dot(normal,globalDirection)*normal));
-}
 
 /**
 *	Constructor, loading the specified aiMesh
@@ -62,48 +56,24 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			vertices.push_back(b);
 			vertices.push_back(c);
 
-			normals.push_back(glm::vec3(mesh->mNormals[first].x, mesh->mNormals[first].y, mesh->mNormals[first].z));
+			glm::vec3 oneNormal=glm::vec3(mesh->mNormals[first].x, mesh->mNormals[first].y, mesh->mNormals[first].z);
+			normals.push_back(oneNormal);
 			normals.push_back(glm::vec3(mesh->mNormals[second].x, mesh->mNormals[second].y, mesh->mNormals[second].z));
 			normals.push_back(glm::vec3(mesh->mNormals[third].x, mesh->mNormals[third].y, mesh->mNormals[third].z));
 
 
-			//TODO tangets
+			//TODO tangets/curvature
 
-			//TODO rotate into same direction as an direction (e.g. global up)
-			glm::vec3 globalDir(1.0, 0.0, 0.0);
-			glm::vec3 proj = projectIntoPlane(globalDir, a, b, c);
+			//rotate texture into same direction as a direction (e.g. curvature)
+			glm::vec3 globalDir(0.0, 1.0, 0.0);
+			glm::vec2 u1;
+			glm::vec2 u2;
+			glm::vec2 u3;
+			calcTexCoord(globalDir, a, b, c, u1, u2, u3);
 
-			glm::vec3 firstSide = glm::normalize(glm::vec3(b-a));
-			float cosAlph = glm::dot(firstSide,proj);
-			float angle = -acos(cosAlph);
-			//std::cout<<"miau:  "<<angle<<std::endl;
-
-//			if(angle > 3.1415/2.0) angle = angle-3.1415;
-
-
-			glm::mat2 rotate = glm::mat2(cos(angle), sin(angle),
-					-sin(angle), cos(angle));
-//			glm::mat2 rotate = glm::mat2(cos(angle), -sin(angle),
-//					sin(angle), cos(angle));
-
-			//Texcoords
-			glm::vec2 u1(0.0,0.0);
-			glm::vec2 u2(1.0,0.0);
-			glm::vec2 u3(0.5,1.0);
-
-			//middle
-//			glm::vec2 center = (u1+u2+u3)/3.f;
-			glm::vec2 center(0.5,0.5);
-
-//			texCoords.push_back(u1);
-//			texCoords.push_back(u2);
-//			texCoords.push_back(u3);
-//			texCoords.push_back(rotate*u1);
-//			texCoords.push_back(rotate*u2);
-//			texCoords.push_back(rotate*u3);
-			texCoords.push_back(center + (rotate * (u1-center)));
-			texCoords.push_back(center + (rotate * (u2-center)));
-			texCoords.push_back(center + (rotate * (u3-center)));
+			texCoords.push_back(u1);
+			texCoords.push_back(u2);
+			texCoords.push_back(u3);
 		}
 
 		//buffers vertex
@@ -132,123 +102,6 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	}
 
 //----------------------------------------------------------------------------------
-
-	//	if(mesh->HasPositions()) {
-	//		float *vertices = new float[mesh->mNumVertices * 3];
-	//		for(int i = 0; i < mesh->mNumVertices; ++i) {
-	//			vertices[i * 3] = mesh->mVertices[i].x;
-	//			vertices[i * 3 + 1] = mesh->mVertices[i].y;
-	//			vertices[i * 3 + 2] = mesh->mVertices[i].z;
-	//		}
-	//
-	//		glGenBuffers(1, &_vbo[0]);
-	//		glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
-	//		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	//
-	//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	//		glEnableVertexAttribArray (0);
-	//
-	//		delete[] vertices;
-	//	}
-	//
-	//	if(mesh->HasNormals()) {
-	//		float *normals = new float[mesh->mNumVertices * 3];
-	//		for(int i = 0; i < mesh->mNumVertices; ++i) {
-	//			normals[i * 3] = mesh->mNormals[i].x;
-	//			normals[i * 3 + 1] = mesh->mNormals[i].y;
-	//			normals[i * 3 + 2] = mesh->mNormals[i].z;
-	//		}
-	//
-	//		glGenBuffers(1, &_vbo[1]);
-	//		glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
-	//		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), normals, GL_STATIC_DRAW);
-	//
-	//		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	//		glEnableVertexAttribArray (1);
-	//
-	//		delete[] normals;
-	//	}
-	//
-	//	if(mesh->HasTextureCoords(0)) {
-	//		//get TextureCoords and normalize Coords between 0 and 1
-	//		float *texCoords = new float[mesh->mNumVertices * 2];
-	////		float minX=mesh->mTextureCoords[0][0].x;
-	////		float maxX=mesh->mTextureCoords[0][0].x;
-	////		float minY=mesh->mTextureCoords[0][0].y;
-	////		float maxY=mesh->mTextureCoords[0][0].y;
-	//		for(int i = 0; i < mesh->mNumVertices; ++i) {
-	////			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
-	//			texCoords[i * 2] = (mesh->mTextureCoords[0][i].x)*3;
-	////			if (texCoords[i * 2] <minX) minX=texCoords[i * 2] ;
-	////			if (texCoords[i * 2] >maxX) maxX=texCoords[i * 2] ;
-	//
-	////			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
-	//			texCoords[i * 2 + 1] = (mesh->mTextureCoords[0][i].y)*3;
-	////			if (texCoords[i * 2+1] <minY) minY=texCoords[i * 2+1] ;
-	////			if (texCoords[i * 2+1] >maxY) maxY=texCoords[i * 2+1] ;
-	//		}
-	////
-	////		float sumX=maxX-minX;
-	////		float sumY=maxY-minY;
-	////
-	////		for(int i = 0; i < mesh->mNumVertices; ++i) {
-	////				texCoords[i * 2] = (texCoords[i * 2]-minX)/sumX;
-	//////				texCoords[i * 2] = ((texCoords[i * 2]-minX)/sumX)*3;
-	////				texCoords[i * 2 + 1] = (texCoords[i * 2 + 1]-minY)/sumY;
-	//////				texCoords[i * 2 + 1] = ((texCoords[i * 2 + 1]-minY)/sumY)*3;
-	////		}
-	//
-	//		glGenBuffers(1, &_vbo[2]);
-	//		glBindBuffer(GL_ARRAY_BUFFER, _vbo[2]);
-	//		glBufferData(GL_ARRAY_BUFFER, 2 * mesh->mNumVertices * sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
-	//
-	//		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-	//		glEnableVertexAttribArray (2);
-	//
-	//		delete[] texCoords;
-	//	}
-
-	//	if(mesh->HasFaces()) {
-	//		unsigned int *indices = new unsigned int[mesh->mNumFaces * 3];
-	//		for(int i = 0; i < mesh->mNumFaces; ++i) {
-	//			indices[i * 3] = mesh->mFaces[i].mIndices[0];
-	//			indices[i * 3 + 1] = mesh->mFaces[i].mIndices[1];
-	//			indices[i * 3 + 2] = mesh->mFaces[i].mIndices[2];
-	//		}
-	//
-	//		glGenBuffers(1, &_vbo[3]);
-	//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo[3]);
-	//		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * mesh->mNumFaces * sizeof(GLuint), indices, GL_STATIC_DRAW);
-	//
-	//		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	//		glEnableVertexAttribArray (3);
-	//
-	//		delete[] indices;
-	//	}
-
-	//	//TANGENTEN
-	//	if(mesh->HasTangentsAndBitangents()) {
-	//		float *tangents = new float[mesh->mNumVertices * 3];
-	//		for(int i = 0; i < mesh->mNumFaces; ++i) {
-	//			tangents[i * 3] = mesh->mTangents[i].x;
-	//			tangents[i * 3 + 1] = mesh->mTangents[i].y;
-	//			tangents[i * 3 + 2] = mesh->mTangents[i].z;
-	////			std::cout<<"has tangents: x: "<<tangents[i * 3]<<" "<<std::endl;
-	////			std::cout<<"has tangents: y: "<<tangents[i * 3+1]<<" "<<std::endl;
-	////			std::cout<<"has tangents: z: "<<tangents[i * 3+2]<<" "<<std::endl;
-	//		}
-	//
-	//		glGenBuffers(1, &_vbo[4]);
-	//		glBindBuffer(GL_ARRAY_BUFFER, _vbo[4]);
-	//		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), tangents, GL_STATIC_DRAW);
-	//
-	//		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	//		glEnableVertexAttribArray (4);
-	//
-	//		delete[] tangents;
-	//	}
-	//	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//	glBindVertexArray(0);
 }
 
 
@@ -272,6 +125,48 @@ Model::MeshEntry::~MeshEntry() {
 	glDeleteVertexArrays(1, &_vao);
 }
 
+void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
+		glm::vec3 triangleB, glm::vec3 triangleC,
+		glm::vec2& u1, glm::vec2& u2,glm::vec2& u3) {
+
+	//replace with curvature or tangent
+	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
+
+	//project everything into2D
+	glm::mat3x2 projMat = createProjection(triangleA, triangleB, triangleC);
+	glm::vec2 a2D = projMat * (triangleA - triangleA);
+	glm::vec2 b2D = projMat * (triangleB - triangleA);
+	glm::vec2 c2D = projMat * (triangleC - triangleA);
+	glm::vec2 proj2D = glm::normalize(projMat * proj);
+
+	//2DAxis
+	glm::vec2 xAxis2D(1.0,0.0);
+	glm::vec2 yAxis2D(0.0,1.0);
+
+	//calc texcoords
+	u1 = glm::vec2(0.2,0.2);
+	u2 = glm::vec2(0.8,0.2);
+	float angle2D = acos(glm::dot(glm::normalize(c2D), xAxis2D));
+	float lengthV = (glm::length(c2D-a2D)*glm::length(u2-u1))/glm::length(b2D-a2D);
+	u3 = glm::vec2(cos(angle2D),sin(angle2D))*lengthV + u1;
+
+	//calc rotation of texture/triangle
+	glm::vec2 triangleSide = glm::normalize(glm::vec2(b2D-a2D));
+	float cosAlph = glm::dot(triangleSide,proj2D);
+	float angle = -acos(cosAlph);
+
+	glm::vec2 rotationPoint = u1;
+
+	//TODO maybe check if normal and curvatur/tangent are the same
+	//if the same, than do something else or there will be no texture
+
+	glm::mat2 rotate = glm::mat2(cos(angle), sin(angle),
+			-sin(angle), cos(angle));
+
+	u1 = rotationPoint + (rotate * (u1-rotationPoint));
+	u2 = rotationPoint + (rotate * (u2-rotationPoint));
+	u3 = rotationPoint + (rotate * (u3-rotationPoint));
+}
 
 void Model::MeshEntry::render() {
 	glBindVertexArray(_vao);
