@@ -62,7 +62,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			normals.push_back(glm::vec3(mesh->mNormals[third].x, mesh->mNormals[third].y, mesh->mNormals[third].z));
 
 
-			//TODO tangets/curvature
+			//TODO curvature (or on another spot, dunno)
 
 			//rotate texture into same direction as a direction (e.g. curvature)
 			glm::vec3 globalDir(0.0, 1.0, 0.0);
@@ -129,7 +129,7 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 		glm::vec3 triangleB, glm::vec3 triangleC,
 		glm::vec2& u1, glm::vec2& u2,glm::vec2& u3) {
 
-	//replace with curvature or tangent
+	//probably replace with curvature later
 	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
 
 	//project everything into2D
@@ -157,7 +157,7 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 
 	glm::vec2 rotationPoint = u1;
 
-	//TODO maybe check if normal and curvatur/tangent are the same
+	//TODO maybe check if normal and curvature/tangent are the same
 	//if the same, than do something else or there will be no texture
 
 	glm::mat2 rotate = glm::mat2(cos(angle), sin(angle),
