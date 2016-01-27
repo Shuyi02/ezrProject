@@ -66,7 +66,7 @@ int main() {
 	glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
 	// dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -79,19 +79,26 @@ int main() {
 	// --------------------------------------------------------------- Load Model and Texture
 
 	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
-	utils::Model *ml_well = new utils::Model(RESOURCES_PATH "/Models/well/well.obj");
-	utils::Model *ml_pumpkin = new utils::Model(RESOURCES_PATH "/Models/pumpkin/potiron.obj");
+	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
+	utils::Model *ml_suzanne = new utils::Model(RESOURCES_PATH "/Models/suzanne/suzanne.obj");
+	utils::Model *ml_teapot = new utils::Model(RESOURCES_PATH "/Models/teapot/pot.obj");
+	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
+	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 
-	GLuint mipMap = utils::loadTexture(RESOURCES_PATH"/MipMap2SCHOEN.jpg");
-
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch0", 4);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch1", 4);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch2", 4);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch3", 4);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch4", 4);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesColor/hatch5", 4);
+//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch0", 3);
+//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch1", 3);
+//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch2", 3);
+//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 3);
+//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 3);
+//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 3);
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
@@ -171,14 +178,8 @@ int main() {
 
 		//---------------------------------------- Texture
 		// Bind our texture in Texture Unit 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mipMap);
-		// Set our "textureSampler" sampler to user Texture Unit 0
-		glUniform1i(mipMapID, 0);
-
-
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
+		// Set our "textureSampler" sampler to user Texture Unit 0
 		glUniform1i(hatch00ID, 0);
 
 		glActiveTexture(GL_TEXTURE1);
@@ -204,7 +205,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_well->render();
+		ml_torus->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);

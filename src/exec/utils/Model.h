@@ -11,6 +11,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -31,12 +32,13 @@ public:
 		void render();
 
 		GLuint _vao;
-		GLuint _vbo[4];
+		GLuint _vbo[5];
 
 		unsigned int _elementCount;
+		void calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
+				glm::vec3 triangleB, glm::vec3 triangleC,
+				glm::vec2& u1, glm::vec2& u2, glm::vec2& u3);
 	};
-
-public:
 	Model(const char *filename);
 	virtual ~Model();
 
