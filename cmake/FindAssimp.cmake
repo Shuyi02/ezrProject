@@ -23,7 +23,7 @@ IF (MINGW)
         ${PROJECT_BINARY_DIR}/bin/libassimp.dll
     )
 	
-	message("Minge")
+	message("Assimp")
 
 ELSEIF (MSVC)
     FIND_PATH( ASSIMP_INCLUDE_PATH assimp/ai_assert.h
