@@ -4,6 +4,8 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <Eigen/Dense>
+#include <Eigen/Core>
 
 #include <iostream>
 using namespace std;
@@ -32,6 +34,7 @@ int main() {
 		return -1;
 	}
 
+	Eigen::Matrix3d nyah = Eigen::Matrix3d::Identity();
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // we want OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
