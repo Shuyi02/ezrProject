@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 
+#include <Eigen/Dense>
+
 #include "Utils.h"
 
 namespace utils {
@@ -24,6 +26,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	//	Normals = vbo[1]
 	//	TexCoord = vbo[2]
 	//	Indices = vbo[3]
+	// ??? = vbo[4]
 
 	_vbo[0] = NULL;
 	_vbo[1] = NULL;
@@ -63,6 +66,8 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 
 			//TODO curvature (or on another spot, dunno)
+			glm::mat3 curvaturTensor;
+			getCurvatureTensor(a, b, c, normals[0], normals[1], normals[2], curvaturTensor);
 
 			//rotate texture into same direction as a direction (e.g. curvature)
 			glm::vec3 globalDir(0.0, 1.0, 0.0);
@@ -166,6 +171,82 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	u1 = rotationPoint + (rotate * (u1-rotationPoint));
 	u2 = rotationPoint + (rotate * (u2-rotationPoint));
 	u3 = rotationPoint + (rotate * (u3-rotationPoint));
+}
+
+void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
+				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
+				glm::vec3 normalB, glm::vec3 normalC, glm::mat3& curvaturTensor){
+
+	//Variablen Name mit _uv ist im Paper (uv) und xn ist (x tiefgestelltes n)
+
+	//equation 9
+	float u = 0.5;
+	float v = 0.5;
+	glm::vec3 x = triangleA + u*(triangleB-triangleA) + v*(triangleC-triangleA);
+	glm::vec3 n = normalA + u*(normalB-normalA) + v*(normalC-normalA);
+
+	//equation 10
+	glm::vec3 xu_uv = triangleB - triangleA;
+	glm::vec3 xv_uv = triangleC - triangleA;
+
+	glm::vec3 n_uv = n/length(n);
+	//TODO für Shuyi
+	glm::vec3 nu = normalB - normalA;
+	glm::vec3 nv = normalC - normalA;
+
+	//equation 11
+	glm::vec3 xu = xu_uv - (glm::dot(n_uv,xu_uv) * n_uv);
+	glm::vec3 xv = xv_uv - (glm::dot(n_uv,xu_uv) * n_uv);
+
+	//equation 1
+	float e = glm::dot(xu, xu);
+	float f = glm::dot(xu, xv);
+	float g = glm::dot(xv, xv);
+
+	//equation 2
+	nu*=-1;
+	float l = glm::dot(nu, xu);
+	float m1 = glm::dot(nu, xv);
+
+	//equation 3
+	nv*=-1;
+	float m2 = glm::dot(nv, xu);
+	// o = paper's N
+	float o = glm::dot(nv, xv);
+
+	//equation 4
+	float denominator = ((e*g) - (f*f));
+	// matrix: w11  w12
+	//         w21  w22
+	float w11 = ((l*g) - (m1*f)) / denominator;
+	float w12 = ((m2*g) - (o*f)) / denominator;
+	float w21 = ((m1*e) - (l*f)) / denominator;
+	float w22 = ((o*e) - (m2*f)) / denominator;
+
+	//TODO: calc eigenvalue k1, k2
+	Eigen::Matrix2d w;
+	w << w11, w12, w21, w22;
+	Eigen::Vector2cd eigenvalues = w.eigenvalues();
+	float k1=0;
+	float k2=0;
+
+	//calc eigenvector
+	glm::vec2 w1 (w11, w12);
+	glm::vec2 w2 (w21, w22);
+
+	//equation 5
+	float k = k1 * k2;
+	float h = 0.5 * (k1 + k2);
+
+	//equation 6: principal direction
+	glm::vec3 pd1 = w11 * xu + w12 * xv;
+	glm::vec3 pd2 = w21 * xu + w22 * xv;
+
+	//TODO equation 8
+
+	//TODO equation 7
+
+
 }
 
 void Model::MeshEntry::render() {
