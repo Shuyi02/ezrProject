@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 
 #include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 
 #include "Utils.h"
 
@@ -67,14 +68,16 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 			//TODO curvature (or on another spot, dunno)
 			glm::mat3 curvaturTensor;
-			getCurvatureTensor(a, b, c, normals[0], normals[1], normals[2], curvaturTensor);
+			glm::vec3 curvatureDirection;
+			getCurvatureTensor(a, b, c, normals[0], normals[1], normals[2], curvatureDirection);
 
 			//rotate texture into same direction as a direction (e.g. curvature)
 			glm::vec3 globalDir(0.0, 1.0, 0.0);
 			glm::vec2 u1;
 			glm::vec2 u2;
 			glm::vec2 u3;
-			calcTexCoord(globalDir, a, b, c, u1, u2, u3);
+//			calcTexCoord(globalDir, a, b, c, u1, u2, u3);
+			calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
 
 			texCoords.push_back(u1);
 			texCoords.push_back(u2);
@@ -175,7 +178,7 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 
 void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
-				glm::vec3 normalB, glm::vec3 normalC, glm::mat3& curvaturTensor){
+				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvaturDirection){
 
 	//Variablen Name mit _uv ist im Paper (uv) und xn ist (x tiefgestelltes n)
 
@@ -190,9 +193,12 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	glm::vec3 xv_uv = triangleC - triangleA;
 
 	glm::vec3 n_uv = n/length(n);
-	//TODO für Shuyi
-	glm::vec3 nu = normalB - normalA;
-	glm::vec3 nv = normalC - normalA;
+	//TODO fï¿½r Shuyi
+	float normN = glm::length(n);
+	glm::vec3 partU = normalB-normalA;
+	glm::vec3 partV = normalC-normalA;
+	glm::vec3 nu = (partU)/normN - (n*(glm::dot(n,partU))/(normN*normN*normN));
+	glm::vec3 nv = (partV)/normN - (n*(glm::dot(n,partV))/(normN*normN*normN));
 
 	//equation 11
 	glm::vec3 xu = xu_uv - (glm::dot(n_uv,xu_uv) * n_uv);
@@ -216,31 +222,46 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 
 	//equation 4
 	float denominator = ((e*g) - (f*f));
+	if(glm::abs(denominator) < 1E-7)
+	{
+		std::cout << "miau miau miau"<< std::endl;
+			curvaturDirection[0] =0.0;
+			curvaturDirection[1] = 0.0;
+			curvaturDirection[2] = 0.0;
+			return;
+	}
 	// matrix: w11  w12
 	//         w21  w22
-	float w11 = ((l*g) - (m1*f)) / denominator;
-	float w12 = ((m2*g) - (o*f)) / denominator;
-	float w21 = ((m1*e) - (l*f)) / denominator;
-	float w22 = ((o*e) - (m2*f)) / denominator;
-
-	//TODO: calc eigenvalue k1, k2
-	Eigen::Matrix2d w;
-	w << w11, w12, w21, w22;
-	Eigen::Vector2cd eigenvalues = w.eigenvalues();
-	float k1=0;
-	float k2=0;
+	float wein11 = ((l*g) - (m1*f)) / denominator;
+	float wein12 = ((m2*g) - (o*f)) / denominator;
+	float wein21 = ((m1*e) - (l*f)) / denominator;
+	float wein22 = ((o*e) - (m2*f)) / denominator;
 
 	//calc eigenvector
-	glm::vec2 w1 (w11, w12);
-	glm::vec2 w2 (w21, w22);
+	Eigen::Matrix2f w;
+	w << wein11, wein12, wein21, wein22;
+	//std::cout << w << std::endl;
+	Eigen::EigenSolver<Eigen::Matrix2f> es(w);
+	Eigen::Vector2f w1 = es.eigenvectors().col(0).real();
+	Eigen::Vector2f w2 = es.eigenvectors().col(1).real();
 
+	//calc principal direction
+	glm::vec3 k1 = w1[0] * xu + w1[1] * xv;
+	glm::vec3 k2 = w1[0] * xu + w1[1] * xv;
+	//Eigen::Vector2d k1 = w1[0] * xu + w1[1] * xv;
+	//Eigen::Vector2d k2 = w2[0] * xu + w2[1] * xv;
+
+//	curvaturDirection[0] = k1[0];
+//	curvaturDirection[1] = k1[1];
+//	curvaturDirection[2] = 0.0;
+	curvaturDirection = k1;
 	//equation 5
-	float k = k1 * k2;
-	float h = 0.5 * (k1 + k2);
+//	float k = k1 * k2;
+//	float h = 0.5 * (k1 + k2);
 
 	//equation 6: principal direction
-	glm::vec3 pd1 = w11 * xu + w12 * xv;
-	glm::vec3 pd2 = w21 * xu + w22 * xv;
+//	glm::vec3 pd1 = w11 * xu + w12 * xv;
+//	glm::vec3 pd2 = w21 * xu + w22 * xv;
 
 	//TODO equation 8
 
