@@ -214,7 +214,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_tetris->render();
+		ml_teapot->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);

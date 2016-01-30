@@ -40,7 +40,7 @@ public:
 
 		void getCurvatureTensor(glm::vec3 triangleA,
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
-				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvaturTensor);
+				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection);
 	};
 	Model(const char *filename);
 	virtual ~Model();
