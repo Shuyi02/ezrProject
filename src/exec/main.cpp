@@ -96,12 +96,18 @@ int main() {
 //	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 3);
 //	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 3);
 //	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 3);
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/0", 3);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/1", 3);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/2", 3);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/3", 3);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/4", 3);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/5", 3);
+//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
+//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
+//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
+//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
+//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
+//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
 
 	// --------------------------------------------------------------- create and compile GLSL program from shaders
 	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
@@ -208,7 +214,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_torus->render();
+		ml_teapot->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
