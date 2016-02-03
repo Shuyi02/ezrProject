@@ -6,7 +6,6 @@ in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
 in vec2 uv;
-in vec3 tangents;
 
 uniform sampler2D hatch00;
 uniform sampler2D hatch01;
@@ -26,7 +25,7 @@ void main()
 	float distance = length(lightPos_camera - vertex_camera);
 	
 	//----------------------------------------------------------------diffuse
-	vec3 n = normal_camera;
+	vec3 n = normalize(normal_camera);
 	vec3 light = normalize(lightPos_camera - vertex_camera); //inverse direction of light
 	float cosTheta = clamp( dot( n,light ), 0.0, 1.0 );
 	
@@ -80,7 +79,12 @@ void main()
 	//fcolor = diffLightColor * lightPower * cosTheta / (distance*distance) +
 	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
-	fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
 	
+	//dummy outline ^^
+	if(abs(dot(n, eye)) <= 0.2){
+		fcolor = vec3(0.0, 0.0, 0.0);
+	}else{
+		fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
+	}
 	//fcolor = vec3(uv,0.0);
 }

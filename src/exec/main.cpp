@@ -214,7 +214,7 @@ int main() {
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_teapot->render();
+		ml_suzanne->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);

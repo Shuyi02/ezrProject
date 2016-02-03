@@ -26,14 +26,10 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	//	Vertices = vbo[0]
 	//	Normals = vbo[1]
 	//	TexCoord = vbo[2]
-	//	Indices = vbo[3]
-	// ??? = vbo[4]
 
 	_vbo[0] = NULL;
 	_vbo[1] = NULL;
 	_vbo[2] = NULL;
-	_vbo[3] = NULL;
-	_vbo[4] = NULL;
 
 	glGenVertexArrays(1, &_vao);
 	glBindVertexArray(_vao);
