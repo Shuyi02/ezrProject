@@ -6,6 +6,7 @@ in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
 in vec2 uv;
+in vec4 ShadowCoord;
 
 uniform sampler2D hatch00;
 uniform sampler2D hatch01;
@@ -13,6 +14,7 @@ uniform sampler2D hatch02;
 uniform sampler2D hatch03;
 uniform sampler2D hatch04;
 uniform sampler2D hatch05;
+uniform sampler2DShadow shadowMap;
 
 // Ouput data
 out vec3 fcolor;
@@ -80,11 +82,21 @@ void main()
 	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
 	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
 	
+	vec3 hatchColor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
+	
 	//dummy outline ^^
-	if(abs(dot(n, eye)) <= 0.2){
-		fcolor = vec3(0.0, 0.0, 0.0);
-	}else{
-		fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
-	}
+	//if(abs(dot(n, eye)) <= 0.2){
+	//	fcolor = vec3(0.0, 0.0, 0.0);
+	//}else{
+	//	fcolor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
+	//}
 	//fcolor = vec3(uv,0.0);
+	
+	//float visibility = 1.0;
+	//if ( texture(shadowMap,ShadowCoord.xy).z  <  ShadowCoord.z){
+	//	visibility = 0.5;
+	//}
+	float visibility = texture( shadowMap, vec3(ShadowCoord.xy, (ShadowCoord.z)/ShadowCoord.w) );
+	fcolor = visibility * hatchColor;
+	
 }

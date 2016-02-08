@@ -217,7 +217,7 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	float denominator = e*g - f*f;
 	if(glm::abs(denominator) < 1E-7)
 	{
-		std::cout << "miau miau miau"<< std::endl;
+		//std::cout << "miau miau miau"<< std::endl;
 		curvatureDirection[0] =0.0;
 		curvatureDirection[1] = 0.0;
 		curvatureDirection[2] = 0.0;
