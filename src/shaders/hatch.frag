@@ -102,18 +102,17 @@ void main()
 	//}else{
 	//	fcolor = hatchColor;
 	//}
+	//float depth = vertex_camera.z;
+	//float depth = gl_FragCoord.z;
+	//float dduTiefe = dFdx(depth); 
+	//float ddvTiefe = dFdy(depth);
+	//vec2 gradTiefe = vec2(dduTiefe,ddvTiefe);
+	//float rate = length(gradTiefe);
 	
-	float depth = vertex_camera.z;
-	float depth = gl_FragCoord.z;
-	float dduTiefe = dFdx(depth); 
-	float ddvTiefe = dFdy(depth);
-	vec2 gradTiefe = vec2(dduTiefe,ddvTiefe);
-	float rate = length(gradTiefe);
-	
-	if(rate > 0.0001){
-		fcolor = vec3(0.0);
-	}
-	else{
+	//if(rate > 0.0001){
+	//	fcolor = vec3(0.0);
+	//}
+	//else{
 		fcolor = hatchColor;
-	}
+	//}
 }
