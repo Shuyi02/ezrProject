@@ -45,6 +45,9 @@ void main()
 	if ( value.x  <  shadowCoord.z-bias){
 		visibility = 0.0;
 	}
+	if (value.x == 0.0){
+		visibility = 1.0;
+	}
 	//--------------------------------------------------------------- six way blend
 	float hatchBrightness = min(1.0,cosTheta) * 6.0;
 	if(visibility == 0.0){
