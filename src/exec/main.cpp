@@ -110,13 +110,14 @@ int main() {
 //	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
 
 
+	//----------------------------------------------------------------------- shadowMap
 	GLuint depthProgramID = utils::loadShaders( SHADERS_PATH "/depthShadow.vert", SHADERS_PATH "/depthShadow.frag" );
 
 	// Get a handle for our "MVP" uniform
 	GLuint depthMatrixID = glGetUniformLocation(depthProgramID, "depthMVP");
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GLuint FramebufferShadow = 0;
+	GLuint FramebufferShadow = 1;
 	glGenFramebuffers(1, &FramebufferShadow);
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
 
@@ -124,31 +125,26 @@ int main() {
 	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, 1024, 1024, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, 1024, 768, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-
 	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 
 	// Always check that our framebuffer is ok
-
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-
 	return false;
 
 	// --------------------------------------------------------------- create and compile main shaders for hatching
-	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
-	SHADERS_PATH "/minimal.frag");
-
+	GLuint programID = utils::loadShaders( SHADERS_PATH "/hatch.vert",
+	SHADERS_PATH "/hatch.frag");
 
 	//---------------------------------------------------------------- lightPosition
-	glm::vec3 lightPos = glm::vec3(-5.0f, 6.0f, 6.0f);
+	glm::vec3 lightPos = glm::vec3(-8.0f, 6.0f, 0.0f);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
 	// --------------------------------------------------------------- Uniforms
@@ -157,11 +153,9 @@ int main() {
 	GLuint MatrixV = glGetUniformLocation(programID, "v");
 	GLuint MatrixP = glGetUniformLocation(programID, "p");
 	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
-	GLuint DepthBiasID = glGetUniformLocation(programID, "DepthBiasMVP");
+//	GLuint DepthBiasID = glGetUniformLocation(programID, "DepthBiasMVP");
+	GLuint depthMVPID = glGetUniformLocation(programID, "depthMVP");
 	GLuint ShadowMapID = glGetUniformLocation(programID, "shadowMap");
-
-	//handle for our "textureSampler" uniform
-	GLuint mipMapID = glGetUniformLocation(programID, "mipMap");
 
 	//handle for our "textureSampler" uniform
 	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
@@ -175,7 +169,7 @@ int main() {
 	do {
 		// Render to framebuffer --------------------------------------------------------------------------
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
-		glViewport(0,0,1024,1024); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+		glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
 		// We don't use bias in the shader, but instead we draw back faces,
 		// which are already separated from the front faces by a small distance
@@ -189,9 +183,10 @@ int main() {
 		glUseProgram(depthProgramID);
 
 //		glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
-		glm::vec3 lightInvDir = -glm::vec3(5.0f, -5.0f, 0.0f);
-		glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
-		glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
+//		glm::vec3 lightInvDir = lightPos;
+//		glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+		glm::mat4 depthProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+		glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0,0,0), glm::vec3(0,1,0));
 
 		glm::mat4 depthModelMatrix = glm::mat4(1.0);
 		glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
@@ -200,7 +195,6 @@ int main() {
 		glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 
 		ml_teapot->render();
-
 
 		// Render to the screen----------------------------------------------------------------------------
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -234,7 +228,8 @@ int main() {
 		glUniformMatrix4fv(MatrixV, 1, GL_FALSE, &v[0][0]);
 		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
 		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
-		glUniformMatrix4fv(DepthBiasID, 1, GL_FALSE, &depthBiasMVP[0][0]);
+//		glUniformMatrix4fv(DepthBiasID, 1, GL_FALSE, &depthBiasMVP[0][0]);
+		glUniformMatrix4fv(depthMVPID, 1, GL_FALSE, &depthMVP[0][0]);
 
 		//------------------------------------------------ Light Position
 //		lightPos.x += 0.01;
@@ -312,7 +307,7 @@ int main() {
 	glDeleteTextures(1, &hatch02ID);
 	glDeleteTextures(1, &hatch01ID);
 	glDeleteTextures(1, &hatch00ID);
-	glDeleteTextures(1, &mipMapID);
+	glDeleteProgram(depthProgramID);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW
