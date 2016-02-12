@@ -96,20 +96,55 @@ int main() {
 //	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 3);
 //	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 3);
 //	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 3);
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/0", 3);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/1", 3);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/2", 3);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/3", 3);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/4", 3);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/5", 3);
+//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
+//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
+//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
+//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
+//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
+//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
 
-	// --------------------------------------------------------------- create and compile GLSL program from shaders
-	GLuint programID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
-	SHADERS_PATH "/minimal.frag");
 
+	//----------------------------------------------------------------------- shadowMap
+	GLuint depthProgramID = utils::loadShaders( SHADERS_PATH "/depthShadow.vert", SHADERS_PATH "/depthShadow.frag" );
+
+	// Get a handle for our "MVP" uniform
+	GLuint depthMatrixID = glGetUniformLocation(depthProgramID, "depthMVP");
+
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GLuint FramebufferShadow = 1;
+	glGenFramebuffers(1, &FramebufferShadow);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
+
+	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, 1024, 768, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+
+	// Always check that our framebuffer is ok
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	return false;
+
+	// --------------------------------------------------------------- create and compile main shaders for hatching
+	GLuint programID = utils::loadShaders( SHADERS_PATH "/hatch.vert",
+	SHADERS_PATH "/hatch.frag");
 
 	//---------------------------------------------------------------- lightPosition
-	glm::vec3 lightPos = glm::vec3(-5.0f, 6.0f, 6.0f);
+	glm::vec3 lightPos = glm::vec3(-8.0f, 6.0f, 0.0f);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
 	// --------------------------------------------------------------- Uniforms
@@ -118,9 +153,9 @@ int main() {
 	GLuint MatrixV = glGetUniformLocation(programID, "v");
 	GLuint MatrixP = glGetUniformLocation(programID, "p");
 	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
-
-	//handle for our "textureSampler" uniform
-	GLuint mipMapID = glGetUniformLocation(programID, "mipMap");
+//	GLuint DepthBiasID = glGetUniformLocation(programID, "DepthBiasMVP");
+	GLuint depthMVPID = glGetUniformLocation(programID, "depthMVP");
+	GLuint ShadowMapID = glGetUniformLocation(programID, "shadowMap");
 
 	//handle for our "textureSampler" uniform
 	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
@@ -130,14 +165,48 @@ int main() {
 	GLuint hatch04ID = glGetUniformLocation(programID, "hatch04");
 	GLuint hatch05ID = glGetUniformLocation(programID, "hatch05");
 
-	glm::vec3 test = glm::vec3(-8.0f, 8.0f, 6.0f);
-
 	// --------------------------------------------------------------- rendering loop
 	do {
+		// Render to framebuffer --------------------------------------------------------------------------
+		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
+		glViewport(0,0,1024,768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+		// We don't use bias in the shader, but instead we draw back faces,
+		// which are already separated from the front faces by a small distance
+		// (if your geometry is made this way)
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//use shader
+		// Use shader for depth
+		glUseProgram(depthProgramID);
+
+//		glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+//		glm::vec3 lightInvDir = lightPos;
+//		glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+		glm::mat4 depthProjectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+		glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0,0,0), glm::vec3(0,1,0));
+
+		glm::mat4 depthModelMatrix = glm::mat4(1.0);
+		glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+		// Send our transformation to the currently bound shader,
+		glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
+
+		ml_teapot->render();
+
+		// Render to the screen----------------------------------------------------------------------------
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0,0,1024, 768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
+
+		// Clear the screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//use main shader
 		glUseProgram(programID);
 
 		//---------------------------------------- Matrices
@@ -146,12 +215,21 @@ int main() {
 		glm::mat4 v = utils::getViewMatrix();
 		glm::mat4 p = utils::getProjectionMatrix();
 		glm::mat4 mv_ti = glm::transpose(glm::inverse(v*m));
+		glm::mat4 biasMatrix(
+					0.5, 0.0, 0.0, 0.0,
+					0.0, 0.5, 0.0, 0.0,
+					0.0, 0.0, 0.5, 0.0,
+					0.5, 0.5, 0.5, 1.0
+				);
+		glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
 		//send transformation to the currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixM, 1, GL_FALSE, &m[0][0]);
 		glUniformMatrix4fv(MatrixV, 1, GL_FALSE, &v[0][0]);
 		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
 		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
+//		glUniformMatrix4fv(DepthBiasID, 1, GL_FALSE, &depthBiasMVP[0][0]);
+		glUniformMatrix4fv(depthMVPID, 1, GL_FALSE, &depthMVP[0][0]);
 
 		//------------------------------------------------ Light Position
 //		lightPos.x += 0.01;
@@ -205,10 +283,13 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, texture_hatch05);
 		glUniform1i(hatch05ID, 5);
 
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
+		glUniform1i(ShadowMapID, 6);
 
 		//---------------------------------------- draw (switch between triangle and model)
 
-		ml_torus->render();
+		ml_teapot->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);
@@ -226,7 +307,7 @@ int main() {
 	glDeleteTextures(1, &hatch02ID);
 	glDeleteTextures(1, &hatch01ID);
 	glDeleteTextures(1, &hatch00ID);
-	glDeleteTextures(1, &mipMapID);
+	glDeleteProgram(depthProgramID);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW
