@@ -15,7 +15,8 @@ out vec3 vertex_camera;
 out vec3 normal_camera;
 out vec2 uv;
 out vec3 lightPos_camera;
-out vec3 shadowCoord;
+out vec3 vertex_model;
+out mat4 depthMVPFrag;
 
 void main(){
 
@@ -27,9 +28,9 @@ void main(){
 	
 	lightPos_camera = (v * m * vec4(lightPos_Model,1.)).xyz;
 	
-	vec4 miau = depthMVP * vec4(vert_modelspace,1.);
-	vec3 miau2 = (miau/miau.w).xyz;
-	shadowCoord = miau2*0.5+vec3(0.5);;
+	//for shadowMapping
+	vertex_model = vert_modelspace;
+	depthMVPFrag = depthMVP;
 	
 	//----------------------------------------------spherical uv
 	//float pi = 3.14159265;

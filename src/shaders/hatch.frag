@@ -6,7 +6,8 @@ in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
 in vec2 uv;
-in vec3 shadowCoord;
+in vec3 vertex_model;
+in mat4 depthMVPFrag;
 
 uniform sampler2D hatch00;
 uniform sampler2D hatch01;
@@ -37,6 +38,11 @@ void main()
 	float cosAlpha = clamp( dot( eye,r ), 0.0 ,1.0 );
 
 	//---------------------------------------------------------------- shadow visibility
+	//calc the screenSpace of light's perspective of fragment
+	vec4 miau = depthMVPFrag * vec4(vertex_model,1.);
+	vec3 miau2 = (miau/miau.w).xyz;
+	vec3 shadowCoord = miau2*0.5+vec3(0.5);
+	
 	float bias = 0.0005;
 	float visibility = 1.0;
 	//check if current fragment(the shadowCoord) is behind the shadow
@@ -44,6 +50,9 @@ void main()
 	//float depth = value.x;
 	if ( value.x  <  shadowCoord.z-bias){
 		visibility = 0.0;
+	}
+	if (value.x <= 0.0){
+		visibility = 1.0;
 	}
 	//--------------------------------------------------------------- six way blend
 	float hatchBrightness = min(1.0,cosTheta) * 6.0;
