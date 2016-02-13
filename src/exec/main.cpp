@@ -10,6 +10,8 @@
 #include <iostream>
 using namespace std;
 
+#define GLM_FORCE_RADIANS
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -122,6 +124,9 @@ int main() {
 	glGenFramebuffers(1, &FramebufferShadow);
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
 
+
+	float miau[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+
 	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
 	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
@@ -131,7 +136,7 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+//	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, miau);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
@@ -188,7 +193,8 @@ int main() {
 		// use shader for depth
 		glUseProgram(depthProgramID);
 
-		glm::mat4 depthProjectionMatrix = glm::perspective(glm::radians(120.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+		glm::mat4 depthProjectionMatrix = glm::perspective(glm::radians(100.0f), 1.0f, 0.1f, 100.0f);
+//		glm::mat4 depthProjectionMatrix = glm::ortho(-10.f,10.f,-10.f,10.f,0.0001f,100.f);
 		glm::mat4 depthViewMatrix = glm::lookAt(lightPos, glm::vec3(0,0,0), glm::vec3(0,1,0));
 		glm::mat4 depthModelMatrix = glm::mat4(1.0);
 		glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
@@ -224,6 +230,12 @@ int main() {
 					0.5, 0.5, 0.5, 1.0
 				);
 		glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+
+		//render from view of the light
+		if(glfwGetKey(window, GLFW_KEY_K ) == GLFW_PRESS){
+			v = depthViewMatrix;
+			p = depthProjectionMatrix;
+		}
 
 		//send transformations to currently bound shader in the mvp uniform
 		glUniformMatrix4fv(MatrixM, 1, GL_FALSE, &m[0][0]);
@@ -294,7 +306,6 @@ int main() {
 		glUseProgram(lightProgramID);
 
 		//matrices
-		utils::computeMatricesFromInputs();
 		glm::mat4 lightM = glm::translate(glm::mat4(1.0), lightPos);
 
 		//send transformations to currently bound shader in the mvp uniform
