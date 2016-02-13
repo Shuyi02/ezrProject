@@ -36,7 +36,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 	_elementCount = mesh->mNumFaces * 3;
 
-	//------------------------------Test no use of indexbuffer
+	//------------------------------no use of indexbuffer
 	//over index
 	if(mesh->HasFaces()) {
 		std::vector<glm::vec3> vertices;
@@ -63,7 +63,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			normals.push_back(n1);
 			normals.push_back(n2);
 
-			//curvature (or on another spot, dunno)
+			//curvature
 			glm::vec3 curvatureDirection;
 			getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
 
@@ -133,10 +133,10 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 		glm::vec3 triangleB, glm::vec3 triangleC,
 		glm::vec2& u1, glm::vec2& u2,glm::vec2& u3) {
 
-	//probably replace with curvature later
+	//project the direction of curvature/global direction into plane
 	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
 
-	//project everything into2D
+	//project triangle and everything into2D
 	glm::mat3x2 projMat = createProjection(triangleA, triangleB, triangleC);
 	glm::vec2 a2D = projMat * (triangleA - triangleA);
 	glm::vec2 b2D = projMat * (triangleB - triangleA);
