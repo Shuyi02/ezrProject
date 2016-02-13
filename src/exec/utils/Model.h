@@ -31,7 +31,7 @@ public:
 		void render();
 
 		GLuint _vao;
-		GLuint _vbo[5];
+		GLuint _vbo[3];
 
 		unsigned int _elementCount;
 		void calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,

@@ -26,21 +26,17 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 	//	Vertices = vbo[0]
 	//	Normals = vbo[1]
 	//	TexCoord = vbo[2]
-	//	Indices = vbo[3]
-	// ??? = vbo[4]
 
 	_vbo[0] = NULL;
 	_vbo[1] = NULL;
 	_vbo[2] = NULL;
-	_vbo[3] = NULL;
-	_vbo[4] = NULL;
 
 	glGenVertexArrays(1, &_vao);
 	glBindVertexArray(_vao);
 
 	_elementCount = mesh->mNumFaces * 3;
 
-	//------------------------------Test no use of indexbuffer
+	//------------------------------no use of indexbuffer
 	//over index
 	if(mesh->HasFaces()) {
 		std::vector<glm::vec3> vertices;
@@ -67,7 +63,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			normals.push_back(n1);
 			normals.push_back(n2);
 
-			//curvature (or on another spot, dunno)
+			//curvature
 			glm::vec3 curvatureDirection;
 			getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
 
@@ -137,10 +133,10 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 		glm::vec3 triangleB, glm::vec3 triangleC,
 		glm::vec2& u1, glm::vec2& u2,glm::vec2& u3) {
 
-	//probably replace with curvature later
+	//project the direction of curvature/global direction into plane
 	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
 
-	//project everything into2D
+	//project triangle and everything into2D
 	glm::mat3x2 projMat = createProjection(triangleA, triangleB, triangleC);
 	glm::vec2 a2D = projMat * (triangleA - triangleA);
 	glm::vec2 b2D = projMat * (triangleB - triangleA);
@@ -222,7 +218,7 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	float denominator = e*g - f*f;
 	if(glm::abs(denominator) < 1E-7)
 	{
-		std::cout << "miau miau miau"<< std::endl;
+		//std::cout << "miau miau miau"<< std::endl;
 		curvatureDirection[0] =0.0;
 		curvatureDirection[1] = 0.0;
 		curvatureDirection[2] = 0.0;
