@@ -238,18 +238,26 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	Eigen::Vector2f w2 = es.eigenvectors().col(1).real();
 
 	//TODO choose which direction (currently always choose the biggest)
+	float eigValue;
 	Eigen::Vector2f eigVec;
 	if(es.eigenvalues()[0].real() > es.eigenvalues()[1].real()){
 		eigVec = w1;
+		eigValue = es.eigenvalues()[0].real();
 	}else{
 		eigVec = w2;
+		eigValue = es.eigenvalues()[1].real();
 	}
 	//calc principal direction
 	glm::vec3 k1 = eigVec[0] * xu + eigVec[1] * xv;
 //	glm::vec3 k2 = w1[0] * xu + w1[1] * xv;
 
-	//result
-	curvatureDirection = k1;
+	if(glm::abs(eigValue) <= 0.001){
+		curvatureDirection = glm::vec3(1.0, 0.0, 0.0);
+	}else{
+		//result
+		curvatureDirection = k1;
+	}
+
 }
 
 void Model::MeshEntry::render() {

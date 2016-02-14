@@ -55,9 +55,9 @@ void main()
 		visibility = 1.0;
 	}
 	//--------------------------------------------------------------- six way blend
-	float hatchBrightness = min(1.0,cosTheta) * 6.0;
+	float hatchBrightness = min(1.0,cosTheta) * 7.0;
 	if(visibility == 0.0){
-		hatchBrightness = 1.0;
+		hatchBrightness = 0.0;
 	}
 	
 	float weightWhite = 0.0;
@@ -69,22 +69,24 @@ void main()
 	float weight5 = 0.0;
 	
 	if(hatchBrightness > 5.0){
-		weightWhite = 1.0 - (6.0-hatchBrightness);
+		weightWhite = 1.0;
+	}else if(hatchBrightness > 3.0){
+		weightWhite = 1.0 - (3.0-hatchBrightness/2.0);
 		weight0 = 1.0 - weightWhite;
-	}else if(hatchBrightness > 4.0){
-		weight0 = 1.0 - (5.0 - hatchBrightness);
+	}else if(hatchBrightness > 2.5){
+		weight0 = 1.0 - ((3.0 - hatchBrightness)/0.5);
         weight1 = 1.0 - weight0;
-	}else if(hatchBrightness > 3.0) {
-        weight1 = 1.0 - (4.0 - hatchBrightness);
+	}else if(hatchBrightness > 2.0) {
+        weight1 = 1.0 - ((2.5 - hatchBrightness)/0.5);
         weight2 = 1.0 - weight1;
-    }else if(hatchBrightness > 2.0) {
-        weight2 = 1.0 - (3.0 - hatchBrightness);
+    }else if(hatchBrightness > 1.5) {
+        weight2 = 1.0 - ((2.0 - hatchBrightness)/0.5);
         weight3 = 1.0 - weight2;
     } else if(hatchBrightness > 1.0) {
-        weight3 = 1.0 - (2.0 - hatchBrightness);
+        weight3 = 1.0 - ((1.5 - hatchBrightness)/0.5);
         weight4 = 1.0 - weight3;
     } else {
-        weight4 = 1.0 - (1.0 - hatchBrightness);
+        weight4 = 1.0 - ((1.0 - hatchBrightness)/0.5);
         weight5 = 1.0 - weight4;
     }
     
@@ -105,6 +107,14 @@ void main()
 	
 	vec3 hatchColor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
 	
+	//threshold
+	fcolor = hatchColor;
+	if(hatchColor.x < 0.3){
+		fcolor = vec3(0.0);
+	}else{
+		fcolor = vec3(1.0);
+	}
+	
 	//----------------------------------------------------------------dummy outline ^^
 	//if(abs(dot(n, eye)) <= 0.2){
 	//	fcolor = vec3(0.0);
@@ -122,6 +132,6 @@ void main()
 	//	fcolor = vec3(0.0);
 	//}
 	//else{
-		fcolor = hatchColor;
+	//	fcolor = hatchColor;
 	//}
 }

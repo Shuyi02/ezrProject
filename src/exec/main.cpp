@@ -90,6 +90,7 @@ int main() {
 	utils::Model *ml_teapot = new utils::Model(RESOURCES_PATH "/Models/teapot/pot.obj");
 	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
 	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
+	utils::Model *currentModel = ml_teapot;
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 
@@ -99,18 +100,18 @@ int main() {
 //	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 3);
 //	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 3);
 //	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 3);
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/0", 3);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/1", 3);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/2", 3);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/3", 3);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/4", 3);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/5", 3);
-//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
-//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
-//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
-//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
-//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
-//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
+//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/0", 3);
+//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/1", 3);
+//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/2", 3);
+//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/3", 3);
+//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/4", 3);
+//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/5", 3);
+	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
 
 
 	//----------------------------------------------------------------------- shaders for shadowMap
@@ -202,7 +203,7 @@ int main() {
 		// send transformation to the currently bound shader
 		glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 
-		ml_teapot->render();
+		currentModel->render();
 
 		//---------------------------------------------------------------------------- render to the screen
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -273,7 +274,7 @@ int main() {
 		glUniform1i(ShadowMapID, 6);
 
 		//draw hatched model
-		ml_teapot->render();
+		currentModel->render();
 
 		//------------------------------------------------ Light Position
 //		lightPos.x += 0.01;
