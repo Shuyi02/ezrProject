@@ -75,6 +75,13 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 //			calcTexCoord(globalDir, a, b, c, u1, u2, u3);
 			calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
 
+			//scale texture depending on triangle size
+			float triangleArea = 0.5*glm::length(glm::cross(b-a, c-a));
+			float scale = glm::sqrt(triangleArea/0.2);
+			u1 = scale*u1;
+			u2 = scale*u2;
+			u3 = scale*u3;
+
 			texCoords.push_back(u1);
 			texCoords.push_back(u2);
 			texCoords.push_back(u3);

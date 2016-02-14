@@ -94,24 +94,15 @@ int main() {
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 
-//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch0", 3);
-//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch1", 3);
-//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch2", 3);
-//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch3", 3);
-//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch4", 3);
-//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch5", 3);
-//	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/0", 3);
-//	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/1", 3);
-//	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/2", 3);
-//	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/3", 3);
-//	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/4", 3);
-//	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchesPaper/5", 3);
-	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_0", 4);
-	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_1", 4);
-	GLuint texture_hatch02 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_2", 4);
-	GLuint texture_hatch03 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_3", 4);
-	GLuint texture_hatch04 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_4", 4);
-	GLuint texture_hatch05 = utils::loadMipMapTexture(RESOURCES_PATH"/hatchTest/hatch_5", 4);
+	std::string texturePath = RESOURCES_PATH"/hatchesLess02/hatch";
+//	std::string texturePath = RESOURCES_PATH"/dots01/dots";
+	int mipMapLevel = 1;
+	GLuint texture_hatch00 = utils::loadMipMapTexture(texturePath+"0", mipMapLevel);
+	GLuint texture_hatch01 = utils::loadMipMapTexture(texturePath+"1", mipMapLevel);
+	GLuint texture_hatch02 = utils::loadMipMapTexture(texturePath+"2", mipMapLevel);
+	GLuint texture_hatch03 = utils::loadMipMapTexture(texturePath+"3", mipMapLevel);
+	GLuint texture_hatch04 = utils::loadMipMapTexture(texturePath+"4", mipMapLevel);
+	GLuint texture_hatch05 = utils::loadMipMapTexture(texturePath+"5", mipMapLevel);
 
 
 	//----------------------------------------------------------------------- shaders for shadowMap

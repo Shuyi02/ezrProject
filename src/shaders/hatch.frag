@@ -109,18 +109,13 @@ void main()
 	
 	//threshold
 	fcolor = hatchColor;
-	if(hatchColor.x < 0.3){
+	if(hatchColor.x < 0.6){
 		fcolor = vec3(0.0);
 	}else{
 		fcolor = vec3(1.0);
 	}
 	
 	//----------------------------------------------------------------dummy outline ^^
-	//if(abs(dot(n, eye)) <= 0.2){
-	//	fcolor = vec3(0.0);
-	//}else{
-	//	fcolor = hatchColor;
-	//}
 	//float depth = vertex_camera.z;
 	//float depth = gl_FragCoord.z;
 	//float dduTiefe = dFdx(depth); 
