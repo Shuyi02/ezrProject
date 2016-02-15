@@ -149,14 +149,14 @@ void main()
 	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(1024,768));
 	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(1024,768));
 	
-	//Soble for the depth
-	float Gx = miauA.w+2*miauD.w+miauF.w-miauC.w-2*miauE.w-miauH.w;
-	float Gy = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	//Sobel for the depth
+	float Gx_depth = miauA.w+2*miauD.w+miauF.w-miauC.w-2*miauE.w-miauH.w;
+	float Gy_depth = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
 	
 	
 	//TODO: NormalMap in Grau! 0.3 * red+ 0.59 * green+ 0.11 * blue
-	float Gx = miauA.x*0.3+miauA.y*0.59+miauA.z*0.11+2*miauD.x*0.3+2*miauD.y*0.59+2*miauD.z*0.11 + miauF.x*0.3-miauF.y*0.59-miauF.z*0.11 - miauC.x*0.3-miauC.y*0.11-miauC.z*0.11 - 2*miauE.x*0.3-2*miauE.y*0.59-2*miauE.z*0.11 - miauH.x*0.3-miauH.y*0.59-miauH.z*0.11;
-	float Gy = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	float Gx_normal = miauA.x*0.3+miauA.y*0.59+miauA.z*0.11+2*miauD.x*0.3+2*miauD.y*0.59+2*miauD.z*0.11 + miauF.x*0.3-miauF.y*0.59-miauF.z*0.11 - miauC.x*0.3-miauC.y*0.11-miauC.z*0.11 - 2*miauE.x*0.3-2*miauE.y*0.59-2*miauE.z*0.11 - miauH.x*0.3-miauH.y*0.59-miauH.z*0.11;
+	float Gy_normal = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
 	
 	
 	//float G = length(Gx)+length(Gy);
