@@ -117,22 +117,98 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
 
 
-	float miau[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+	float miau[4] = {1.0f, 1.0f, 1.0f, 1.0f}; //kann weg oder //texturrand-Farbe da clamp to border
 
 	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
 	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, 1024, 1024, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-//	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, miau);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //nimm naechstliegenden pixel beim up scaling
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //nimm naechstliegenden pixel beim down scaling
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); //clamp in u richtung
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER); //clamp in v richtung
+//	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, miau); //border color for clamp
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL); //interpolierte Texturkoordinate kleiner gleich Tiefentexturwert, der von der aktuell gebundenen Tiefentextur dann 1 sonst 0. Das Ergebnis wird entweder der Luminanz, der Intensitaet oder Alpha zugewiesen
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
 	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+
+
+	//------------------------------------------------------------------------------ shaders for outline
+	GLuint outlineProgramID = utils::loadShaders( SHADERS_PATH "/preOutline.vert", SHADERS_PATH "/preOutline.frag" );
+	glUseProgram(outlineProgramID);
+
+	// Get a handle for our "MVP" uniform
+	GLuint outlineMatrixID = glGetUniformLocation(outlineProgramID, "normalDepth");
+	//	GLuint normalDepthID = glGetUniformLocation(normalDepthProgramID, "normalDepth");
+
+	glUseProgram(0);
+
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GLuint FramebufferOutline = 1;
+	glGenFramebuffers(1, &FramebufferOutline);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferOutline);
+
+	//vero try texture7
+	GLuint normalDepthTexture;
+	glGenTextures(1, &normalDepthTexture);
+	glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
+	float redBorder[4] = {1.0f, 0.0f, 0.0f, 1.0f}; //textur-Randfarbe da clamp to border
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, redBorder); //textur-Randfarbe da clamp to border
+	//Eigenschaften
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_FLOAT, 0); //RGBA 4 Parameter, Aufloesung 1024x1024 als Angabe fuer Texture2D
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in u Richtung
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in v Richtung
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //nimmt naechsten Pixelwert und interpoliert nich von den 4 nachbarn
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // da wir Aufoesung entsprechend Tex angelegt haben sollte das passen
+	//
+//	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, normalDepthTexture, 0);
+
+
+	 // The depth buffer
+	 GLuint depthrenderbuffer;
+	 glGenRenderbuffers(1, &depthrenderbuffer);
+	 glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+	 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 1024);
+	 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+
+	 // Set "renderedTexture" as our colour attachement #0
+	 glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, normalDepthTexture, 0);
+
+	 // Set the list of draw buffers.
+	 GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+	 glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+
+//	 //-------------------- Framebuffer2 for soble ----------------
+//	 // FramebufferSoble, sobelProgramID, sobelTexture
+//	 GLuint sobelProgramID = utils::loadShaders( SHADERS_PATH "/outline.vert", SHADERS_PATH "/outline.frag" );
+//	 glUseProgram(sobelProgramID);
+//	 glUseProgram(0);
+//	 // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+//	 GLuint FramebufferSobel = 1;
+//	 glGenFramebuffers(1, &FramebufferSobel);
+//	 glBindFramebuffer(GL_FRAMEBUFFER, FramebufferSobel);
+//
+//	GLuint sobelTexture;
+//	glGenTextures(1, &sobelTexture);
+//	glBindTexture(GL_TEXTURE_2D, sobelTexture);
+//	float blueBorder[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+//	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, blueBorder);
+//	 	//Eigenschaften
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_FLOAT, 0);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//
+//	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, normalDepthTexture, 0); // Set "renderedTexture" as our colour attachement #0
+////	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 }; // Set the list of draw buffers.
+//	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+	//------------------------------------------ veros spielwiese ende ----------------------------------------------
+
 
 	// always check framebuffer is ok
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -151,9 +227,12 @@ int main() {
 	GLuint MatrixM = glGetUniformLocation(programID, "m");
 	GLuint MatrixV = glGetUniformLocation(programID, "v");
 	GLuint MatrixP = glGetUniformLocation(programID, "p");
-	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
+	GLuint MatrixMV_ti = glGetUniformLocation(programID, "MatrixMV_ti");
 	GLuint depthMVPID = glGetUniformLocation(programID, "depthMVP");
 	GLuint ShadowMapID = glGetUniformLocation(programID, "shadowMap");
+//	//vero try outline
+	GLuint normalDepthID = glGetUniformLocation(programID, "normalDepth");
+
 
 	//handle for our "textureSampler" uniform
 	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
@@ -195,6 +274,53 @@ int main() {
 		glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0]);
 
 		currentModel->render();
+		// --------------------------------
+
+		//matrices
+				utils::computeMatricesFromInputs();
+				glm::mat4 m = glm::mat4(1.0);
+				glm::mat4 v = utils::getViewMatrix();
+				glm::mat4 p = utils::getProjectionMatrix();
+				glm::mat4 mv_ti = glm::transpose(glm::inverse(v*m));
+				glm::mat4 biasMatrix(
+							0.5, 0.0, 0.0, 0.0,
+							0.0, 0.5, 0.0, 0.0,
+							0.0, 0.0, 0.5, 0.0,
+							0.5, 0.5, 0.5, 1.0
+						);
+				glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+
+		//------------------------------------------------------------------------------ Render to texture veros spielwiese
+		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferOutline); //vero try maybe
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0); //vero try maybe
+		glViewport(0,0,1024,1024); //render from 0;0 bis 1024;1024 hole framebuffer
+
+
+//		glEnable(GL_CULL_FACE);
+//		glCullFace(GL_BACK);
+//
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(outlineProgramID);
+
+
+		glm::mat4 normalDepthMVP = p*v*m;
+		//vero try outline need a transformation
+		glUniformMatrix4fv(outlineMatrixID, 1, GL_FALSE, &normalDepthMVP[0][0]);
+
+		//draw model
+		currentModel->render();
+
+//		//------- veros zweiter teil -------
+//		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferSobel);
+//		glViewport(0,0,1024,1024);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glUseProgram(sobelProgramID);
+////		glm::mat4 normalDepthMVP = p*v*m; //?
+////		glUniformMatrix4fv(outlineMatrixID, 1, GL_FALSE, &normalDepthMVP[0][0]);
+//		currentModel->render();
+
+		//--------------------------------------------- veros spielwiese ende ---------------------------------------------
 
 		//---------------------------------------------------------------------------- render to the screen
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -209,19 +335,7 @@ int main() {
 		//use main shader
 		glUseProgram(programID);
 
-		//matrices
-		utils::computeMatricesFromInputs();
-		glm::mat4 m = glm::mat4(1.0);
-		glm::mat4 v = utils::getViewMatrix();
-		glm::mat4 p = utils::getProjectionMatrix();
-		glm::mat4 mv_ti = glm::transpose(glm::inverse(v*m));
-		glm::mat4 biasMatrix(
-					0.5, 0.0, 0.0, 0.0,
-					0.0, 0.5, 0.0, 0.0,
-					0.0, 0.0, 0.5, 0.0,
-					0.5, 0.5, 0.5, 1.0
-				);
-		glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
+
 
 		//render from view of the light
 		if(glfwGetKey(window, GLFW_KEY_K ) == GLFW_PRESS){
@@ -235,6 +349,8 @@ int main() {
 		glUniformMatrix4fv(MatrixP, 1, GL_FALSE, &p[0][0]);
 		glUniformMatrix4fv(MatrixMV_ti, 1, GL_FALSE, &mv_ti[0][0]);
 		glUniformMatrix4fv(depthMVPID, 1, GL_FALSE, &depthMVP[0][0]);
+
+
 
 		//---------------------------------------- Texture
 		glBindTexture(GL_TEXTURE_2D, texture_hatch00);
@@ -263,6 +379,11 @@ int main() {
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
 		glUniform1i(ShadowMapID, 6);
+
+		//---vero try outline -- normale u tiefe aus Kamerasicht
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
+		glUniform1i(normalDepthID, 7);
 
 		//draw hatched model
 		currentModel->render();
@@ -324,6 +445,9 @@ int main() {
 	glDeleteTextures(1, &hatch01ID);
 	glDeleteTextures(1, &hatch00ID);
 	glDeleteProgram(depthProgramID);
+	//vero try outline
+	glDeleteProgram(outlineProgramID);
+//	glDeleteProgram(sobelProgramID);
 	glDeleteProgram(programID);
 
 	//close OpenGL window and terminate GLFW

@@ -16,6 +16,7 @@ uniform sampler2D hatch03;
 uniform sampler2D hatch04;
 uniform sampler2D hatch05;
 uniform sampler2D shadowMap;
+uniform sampler2D normalDepth;
 
 // Ouput data
 out vec3 fcolor;
@@ -129,4 +130,10 @@ void main()
 	//else{
 	//	fcolor = hatchColor;
 	//}
+	
+	vec2 suv = gl_FragCoord.xy/vec2(1024,768); 
+//	fcolor *= texture(normalDepth,suv).xyz;
+	fcolor = texture(normalDepth,suv).xyz;
+//	fcolor = vec3(suv,0.0);
+	
 }
