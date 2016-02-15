@@ -141,12 +141,13 @@ int main() {
 
 	// Get a handle for our "MVP" uniform
 	GLuint outlineMatrixID = glGetUniformLocation(outlineProgramID, "normalDepth");
+	GLuint outlineMVinvertiertMatrixID = glGetUniformLocation(outlineProgramID, "mv_ti");
 	//	GLuint normalDepthID = glGetUniformLocation(normalDepthProgramID, "normalDepth");
 
-	glUseProgram(0);
+//	glUseProgram(0);
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GLuint FramebufferOutline = 1;
+	GLuint FramebufferOutline = 2;
 	glGenFramebuffers(1, &FramebufferOutline);
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferOutline);
 
@@ -307,7 +308,7 @@ int main() {
 		glm::mat4 normalDepthMVP = p*v*m;
 		//vero try outline need a transformation
 		glUniformMatrix4fv(outlineMatrixID, 1, GL_FALSE, &normalDepthMVP[0][0]);
-
+		glUniformMatrix4fv(outlineMVinvertiertMatrixID, 1, GL_FALSE, &mv_ti[0][0]);
 		//draw model
 		currentModel->render();
 
