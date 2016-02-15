@@ -117,23 +117,53 @@ void main()
 	}
 	
 	//----------------------------------------------------------------dummy outline ^^
+	//mittlere mittelpixel ist gl_FragCoord.xy 
+	vec2 suv = gl_FragCoord.xy/vec2(1024,768); 
+	
 	//float depth = vertex_camera.z;
 	//float depth = gl_FragCoord.z;
-	//float dduTiefe = dFdx(depth); 
-	//float ddvTiefe = dFdy(depth);
+	//float dduTiefe = dFdx(texture(normalDepth,gl_FragCoord.xy).w); 
+	//float ddvTiefe = dFdy(texture(normalDepth,gl_FragCoord.xy).w);
 	//vec2 gradTiefe = vec2(dduTiefe,ddvTiefe);
 	//float rate = length(gradTiefe);
 	
-	//if(rate > 0.0001){
-	//	fcolor = vec3(0.0);
+	//vec4 outlineWight;
+	//if(rate > 0.392){
+	//	outlineWight = vec4(0.0,0.0,0.0,1.0);
 	//}
 	//else{
-	//	fcolor = hatchColor;
+	//	outlineWight = vec4(1.0,0.0,0.0,1.0);
 	//}
 	
-	vec2 suv = gl_FragCoord.xy/vec2(1024,768); 
-//	fcolor *= texture(normalDepth,suv).xyz;
-	fcolor = texture(normalDepth,suv).xyz;
+	
+	// look neighbor pixels in 8th-neighborhood
+	//  miauA  miauB  miauC
+	//  miauD    X    miauE
+	//  miauF  miauG  miauH
+	vec4 miauA = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,-1.0))/vec2(1024,768));
+	vec4 miauB = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,-1.0))/vec2(1024,768));
+	vec4 miauC = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,-1.0))/vec2(1024,768));
+	vec4 miauD = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,0.0))/vec2(1024,768));
+	vec4 miauE = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,0.0))/vec2(1024,768));
+	vec4 miauF = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,1.0))/vec2(1024,768));
+	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(1024,768));
+	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(1024,768));
+	
+	//Soble for the depth
+	float Gx = miauA.w+2*miauD.w+miauF.w-miauC.w-2*miauE.w-miauH.w;
+	float Gy = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	
+	
+	//TODO: NormalMap in Grau! 0.3 * red+ 0.59 * green+ 0.11 * blue
+	float Gx = miauA.x*0.3+miauA.y*0.59+miauA.z*0.11+2*miauD.x*0.3+2*miauD.y*0.59+2*miauD.z*0.11 + miauF.x*0.3-miauF.y*0.59-miauF.z*0.11 - miauC.x*0.3-miauC.y*0.11-miauC.z*0.11 - 2*miauE.x*0.3-2*miauE.y*0.59-2*miauE.z*0.11 - miauH.x*0.3-miauH.y*0.59-miauH.z*0.11;
+	float Gy = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	
+	
+	//float G = length(Gx)+length(Gy);
+
+//	fcolor *= outlineWight.xyz;
+	fcolor *= texture(normalDepth,suv).xyz; //Normalmap with Hatching
+//	fcolor = texture(normalDepth,suv).xyz;
 //	fcolor = vec3(suv,0.0);
 	
 }
