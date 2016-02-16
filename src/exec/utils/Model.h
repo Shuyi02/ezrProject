@@ -16,6 +16,7 @@
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 #include <assimp/postprocess.h>
+#include <assimp/VertexTriangleAdjacency.h>
 
 #include <vector>
 
@@ -24,11 +25,16 @@ namespace utils {
 class Model {
 public:
 	struct MeshEntry {
-		MeshEntry(aiMesh *mesh);
+		MeshEntry(aiMesh *mesh, int i);
 		~MeshEntry();
 
 		void load(aiMesh *mesh);
 		void render();
+
+		void FindAdjacencies(aiMesh* mesh, std::vector<unsigned int>& Indices);
+
+
+
 
 		GLuint _vao;
 		GLuint _vbo[3];

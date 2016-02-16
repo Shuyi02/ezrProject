@@ -71,7 +71,7 @@ int main() {
 	glfwSetCursorPos(window, 1024 / 2, 768 / 2);
 
 	// dark blue background
-	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+	glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -83,15 +83,15 @@ int main() {
 
 	// --------------------------------------------------------------------- Load Model and Texture
 
-	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
-	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
+//	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+//	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
 	utils::Model *ml_lightSphere = new utils::Model(RESOURCES_PATH "/Models/sphere/lightOrb.obj");
-	utils::Model *ml_suzanne = new utils::Model(RESOURCES_PATH "/Models/suzanne/suzanne.obj");
+//	utils::Model *ml_suzanne = new utils::Model(RESOURCES_PATH "/Models/suzanne/suzanne.obj");
 	utils::Model *ml_teapot = new utils::Model(RESOURCES_PATH "/Models/teapot/pot.obj");
-	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
-	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
+//	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
+//	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
 
-	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
+//	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
 
 //	GLuint texture_hatch00 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch0", 3);
 //	GLuint texture_hatch01 = utils::loadMipMapTexture(RESOURCES_PATH"/hatches/hatch1", 3);
@@ -313,7 +313,7 @@ int main() {
 		glUniformMatrix4fv(lightMatrixV, 1, GL_FALSE, &v[0][0]);
 		glUniformMatrix4fv(lightMatrixP, 1, GL_FALSE, &p[0][0]);
 
-		ml_lightSphere->render();
+//		ml_lightSphere->render();
 
 		// swap buffers
 		glfwSwapBuffers(window);

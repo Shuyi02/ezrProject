@@ -19,9 +19,9 @@
 namespace utils {
 
 /**
-*	Constructor, loading the specified aiMesh
-**/
-Model::MeshEntry::MeshEntry(aiMesh *mesh) {
+ *	Constructor, loading the specified aiMesh
+ **/
+Model::MeshEntry::MeshEntry(aiMesh *mesh, int i) {
 
 	//	Vertices = vbo[0]
 	//	Normals = vbo[1]
@@ -38,91 +38,310 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 	//------------------------------no use of indexbuffer
 	//over index
-	if(mesh->HasFaces()) {
+	if (mesh->HasFaces()) {
+
+		/*	structure of "adjacencys": v0, n0, v1, n1, v2, n2
+		 v -> VertexIndices of face
+		 n -> VertexIndices of adjacentTriangles
+		 [v0, n0, v1] is adjacent tirangle of edge [v0, v1]
+		 */
+		std::vector<unsigned int> adjacencys;
+		FindAdjacencies(mesh, adjacencys);
+
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec3> normals;
 		std::vector<glm::vec2> texCoords;
-		for(int i = 0; i < mesh->mNumFaces; ++i) {
+
+		for (int i = 0; i < mesh->mNumFaces; ++i) {
 			//push indices for 3 vertices of a triangle
-			int first = mesh->mFaces[i].mIndices[0];
-			int second = mesh->mFaces[i].mIndices[1];
-			int third = mesh->mFaces[i].mIndices[2];
 
-			//each vertex get a vertex, normal and each triangle one uv
-			glm::vec3 a(mesh->mVertices[first].x, mesh->mVertices[first].y, mesh->mVertices[first].z);
-			glm::vec3 b(mesh->mVertices[second].x, mesh->mVertices[second].y, mesh->mVertices[second].z);
-			glm::vec3 c(mesh->mVertices[third].x, mesh->mVertices[third].y, mesh->mVertices[third].z);
-			vertices.push_back(a);
-			vertices.push_back(b);
-			vertices.push_back(c);
+//			int first = mesh->mFaces[i].mIndices[0];
+//			int second = mesh->mFaces[i].mIndices[1];
+//			int third = mesh->mFaces[i].mIndices[2];
 
-			glm::vec3 n0 = glm::vec3(mesh->mNormals[first].x, mesh->mNormals[first].y, mesh->mNormals[first].z);
-			glm::vec3 n1 = glm::vec3(mesh->mNormals[second].x, mesh->mNormals[second].y, mesh->mNormals[second].z);
-			glm::vec3 n2 = glm::vec3(mesh->mNormals[third].x, mesh->mNormals[third].y, mesh->mNormals[third].z);
-			normals.push_back(n0);
-			normals.push_back(n1);
-			normals.push_back(n2);
+/* TODO Hier ein Test: alle faces + adjacencys zeichnen lassen,
+ * Problem: es gibt Luecken in den Meshs
+ * wenn man nur die "normalen" faces (also j>0 auskommentiert) hat man wieder ein vollstaendiges Mesh
+ * also stimmt irgendwas mit den Nachbarschaftszugriffen nicht ODER wie ich sie in first, second, third schreibe,
+ * aber eigentlich müsste es doch so richtig sein (gegen den Uhrzeigersinn)
+ */
 
-			//curvature
-			glm::vec3 curvatureDirection;
-			getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
+			int first, second, third;
+			for (int j = 0; j < 4; j++) {
+				//indices for face
+				if (j == 0) {
+					//Erklaerung fuer Zugriff siehe Z. 43 f.
+					first = adjacencys.at(i * 6 );
+					second = adjacencys.at(i * 6 + 2);
+					third = adjacencys.at(i * 6 + 4);
 
-			//rotate texture into same direction as a direction (e.g. curvature)
-			glm::vec3 globalDir(0.0, 1.0, 0.0);
-			glm::vec2 u1;
-			glm::vec2 u2;
-			glm::vec2 u3;
-//			calcTexCoord(globalDir, a, b, c, u1, u2, u3);
-			calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
+				//indices for adjacent triangles
+				} else if (j == 1) {
+					first = adjacencys.at(i * 6 );
+					second = adjacencys.at(i * 6 + 1);
+					third = adjacencys.at(i * 6 + 2);
 
-			texCoords.push_back(u1);
-			texCoords.push_back(u2);
-			texCoords.push_back(u3);
+				} else if (j == 2) {
+					first = adjacencys.at(i * 6 + 2);
+					second = adjacencys.at(i * 6 + 3);
+					third = adjacencys.at(i * 6 + 4);
+
+
+				} else {
+					first = adjacencys.at(i * 6 + 4);
+					second = adjacencys.at(i * 6 + 5);
+					third = adjacencys.at(i * 6 );
+
+				}
+//ab hier wieder alles so wie vorher
+
+				//each vertex get a vertex, normal and each triangle one uv
+				glm::vec3 a(mesh->mVertices[first].x, mesh->mVertices[first].y,
+						mesh->mVertices[first].z);
+				glm::vec3 b(mesh->mVertices[second].x,
+						mesh->mVertices[second].y, mesh->mVertices[second].z);
+				glm::vec3 c(mesh->mVertices[third].x, mesh->mVertices[third].y,
+						mesh->mVertices[third].z);
+				vertices.push_back(a);
+				vertices.push_back(b);
+				vertices.push_back(c);
+
+				glm::vec3 n0 = glm::vec3(mesh->mNormals[first].x,
+						mesh->mNormals[first].y, mesh->mNormals[first].z);
+				glm::vec3 n1 = glm::vec3(mesh->mNormals[second].x,
+						mesh->mNormals[second].y, mesh->mNormals[second].z);
+				glm::vec3 n2 = glm::vec3(mesh->mNormals[third].x,
+						mesh->mNormals[third].y, mesh->mNormals[third].z);
+				normals.push_back(n0);
+				normals.push_back(n1);
+				normals.push_back(n2);
+
+				//curvature
+				glm::vec3 curvatureDirection;
+				getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
+
+				//rotate texture into same direction as a direction (e.g. curvature)
+				glm::vec3 globalDir(0.0, 1.0, 0.0);
+				glm::vec2 u1;
+				glm::vec2 u2;
+				glm::vec2 u3;
+//				calcTexCoord(globalDir, a, b, c, u1, u2, u3);
+				calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
+
+				texCoords.push_back(u1);
+				texCoords.push_back(u2);
+				texCoords.push_back(u3);
+			}
 		}
-
 		//buffers vertex
 		glGenBuffers(1, &_vbo[0]);
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3),
+				&vertices[0], GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (0);
+		glEnableVertexAttribArray(0);
 
 		//buffer normal
 		glGenBuffers(1, &_vbo[1]);
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3),
+				&normals[0], GL_STATIC_DRAW);
 
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (1);
+		glEnableVertexAttribArray(1);
 
 		//buffer texCoord
 		glGenBuffers(1, &_vbo[2]);
 		glBindBuffer(GL_ARRAY_BUFFER, _vbo[2]);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), &texCoords[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2),
+				&texCoords[0], GL_STATIC_DRAW);
 
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray (2);
+		glEnableVertexAttribArray(2);
 	}
 
 //----------------------------------------------------------------------------------
 }
+// Stores an edge by its vertices and force an order between them
+struct Edge {
+	int a;
+	int b;
 
+	Edge(int _a, int _b) {
+		assert(_a != _b);
+
+		if (_a < _b) {
+			a = _a;
+			b = _b;
+		} else {
+			a = _b;
+			b = _a;
+		}
+	}
+};
+
+struct Neighbors {
+	int n1;
+	int n2;
+
+	Neighbors() {
+		n1 = n2 = (int) -1;
+	}
+
+	void AddNeigbor(int n) {
+		if (n1 == -1) {
+			n1 = n;
+		} else if (n2 == -1) {
+			n2 = n;
+		} else {
+			assert(0);
+		}
+	}
+
+	int GetOther(int me) const {
+		if (n1 == me) {
+			return n2;
+		} else if (n2 == me) {
+			return n1;
+		} else {
+			assert(0);
+		}
+
+		return 0;
+	}
+};
+
+struct Face {
+	int Indices[3];
+
+	int GetOppositeIndex(const Edge& e) const {
+		for (int i = 0; i < sizeof(Indices); i++) {
+			int Index = Indices[i];
+
+			if (Index != e.a && Index != e.b) {
+				return Index;
+			}
+		}
+
+		assert(0);
+
+		return 0;
+	}
+};
+
+struct CompareVectors {
+	bool operator()(const aiVector3D& a, const aiVector3D& b) {
+		if (a.x < b.x) {
+			return true;
+		} else if (a.x == b.x) {
+			if (a.y < b.y) {
+				return true;
+			} else if (a.y == b.y) {
+				if (a.z < b.z) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+struct CompareEdges {
+	bool operator()(const Edge& Edge1, const Edge& Edge2) {
+		if (Edge1.a < Edge2.a) {
+			return true;
+		} else if (Edge1.a == Edge2.a) {
+			return (Edge1.b < Edge2.b);
+		} else {
+			return false;
+		}
+	}
+};
+
+void Model::MeshEntry::FindAdjacencies(aiMesh* mesh,
+		std::vector<unsigned int>& Indices) {
+	//saves the neighbor faces, Edge is between them
+	std::map<Edge, Neighbors, CompareEdges> indexMap;
+
+	//key of posMap is a Vertex, entry is the unique index
+	std::map<aiVector3D, int, CompareVectors> posMap;
+
+	//saves the faces with unique indices
+	std::vector<Face> uniqueFaces;
+
+	// Step 1 - find the triangles that share every edge
+	for (int i = 0; i < mesh->mNumFaces; i++) {
+		const aiFace& face = mesh->mFaces[i];
+
+		Face Unique;
+
+		// If a vertex is duplicated in the VertexBuffer we fetch the
+		// index of the first occurrence.
+		for (int j = 0; j < 3; j++) {
+			int Index = face.mIndices[j];
+			aiVector3D& v = mesh->mVertices[Index];
+
+			if (posMap.find(v) == posMap.end()) {
+				posMap[v] = Index;
+			} else {
+				Index = posMap[v];
+			}
+
+			Unique.Indices[j] = Index;
+		}
+
+		uniqueFaces.push_back(Unique);
+
+		Edge e1(Unique.Indices[0], Unique.Indices[1]);
+		Edge e2(Unique.Indices[1], Unique.Indices[2]);
+		Edge e3(Unique.Indices[2], Unique.Indices[0]);
+
+		//add face as Neigbor
+		indexMap[e1].AddNeigbor(i);
+		indexMap[e2].AddNeigbor(i);
+		indexMap[e3].AddNeigbor(i);
+	}
+
+	// Step 2 - build the index buffer with the adjacency info
+	for (int i = 0; i < mesh->mNumFaces; i++) {
+		const Face& face = uniqueFaces[i];
+
+		for (int j = 0; j < 3; j++) {
+			Edge e(face.Indices[j], face.Indices[(j + 1) % 3]);
+			assert(indexMap.find(e) != indexMap.end());
+
+			//get the face which share edge e_j
+			Neighbors n = indexMap[e];
+			int OtherTri = n.GetOther(i);
+			assert(OtherTri != -1);
+
+
+			const Face& OtherFace = uniqueFaces[OtherTri];
+			int OppositeIndex = OtherFace.GetOppositeIndex(e);
+
+			Indices.push_back(face.Indices[j]);
+			Indices.push_back(OppositeIndex);
+		}
+	}
+
+}
 
 Model::MeshEntry::~MeshEntry() {
-	if(_vbo[0]) {
+	if (_vbo[0]) {
 		glDeleteBuffers(1, &_vbo[0]);
 	}
 
-	if(_vbo[1]) {
+	if (_vbo[1]) {
 		glDeleteBuffers(1, &_vbo[1]);
 	}
 
-	if(_vbo[2]) {
+	if (_vbo[2]) {
 		glDeleteBuffers(1, &_vbo[2]);
 	}
 
-	if(_vbo[3]) {
+	if (_vbo[3]) {
 		glDeleteBuffers(1, &_vbo[3]);
 	}
 
@@ -130,11 +349,12 @@ Model::MeshEntry::~MeshEntry() {
 }
 
 void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
-		glm::vec3 triangleB, glm::vec3 triangleC,
-		glm::vec2& u1, glm::vec2& u2,glm::vec2& u3) {
+		glm::vec3 triangleB, glm::vec3 triangleC, glm::vec2& u1, glm::vec2& u2,
+		glm::vec2& u3) {
 
 	//project the direction of curvature/global direction into plane
-	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
+	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB,
+			triangleC);
 
 	//project triangle and everything into2D
 	glm::mat3x2 projMat = createProjection(triangleA, triangleB, triangleC);
@@ -144,19 +364,20 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	glm::vec2 proj2D = glm::normalize(projMat * proj);
 
 	//2DAxis
-	glm::vec2 xAxis2D(1.0,0.0);
-	glm::vec2 yAxis2D(0.0,1.0);
+	glm::vec2 xAxis2D(1.0, 0.0);
+	glm::vec2 yAxis2D(0.0, 1.0);
 
 	//calc texcoords
-	u1 = glm::vec2(0.2,0.2);
-	u2 = glm::vec2(0.8,0.2);
+	u1 = glm::vec2(0.2, 0.2);
+	u2 = glm::vec2(0.8, 0.2);
 	float angle2D = acos(glm::dot(glm::normalize(c2D), xAxis2D));
-	float lengthV = (glm::length(c2D-a2D)*glm::length(u2-u1))/glm::length(b2D-a2D);
-	u3 = glm::vec2(cos(angle2D),sin(angle2D))*lengthV + u1;
+	float lengthV = (glm::length(c2D - a2D) * glm::length(u2 - u1))
+			/ glm::length(b2D - a2D);
+	u3 = glm::vec2(cos(angle2D), sin(angle2D)) * lengthV + u1;
 
 	//calc rotation of texture/triangle
-	glm::vec2 triangleSide = glm::normalize(glm::vec2(b2D-a2D));
-	float cosAlph = glm::dot(triangleSide,proj2D);
+	glm::vec2 triangleSide = glm::normalize(glm::vec2(b2D - a2D));
+	float cosAlph = glm::dot(triangleSide, proj2D);
 	float angle = -acos(cosAlph);
 
 	glm::vec2 rotationPoint = u1;
@@ -164,25 +385,26 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	//TODO maybe check if normal and curvature/tangent are the same
 	//if the same, than do something else or there will be no texture
 
-	glm::mat2 rotate = glm::mat2(cos(angle), sin(angle),
-			-sin(angle), cos(angle));
+	glm::mat2 rotate = glm::mat2(cos(angle), sin(angle), -sin(angle),
+			cos(angle));
 
-	u1 = rotationPoint + (rotate * (u1-rotationPoint));
-	u2 = rotationPoint + (rotate * (u2-rotationPoint));
-	u3 = rotationPoint + (rotate * (u3-rotationPoint));
+	u1 = rotationPoint + (rotate * (u1 - rotationPoint));
+	u2 = rotationPoint + (rotate * (u2 - rotationPoint));
+	u3 = rotationPoint + (rotate * (u3 - rotationPoint));
 }
 
 void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
-				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
-				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection){
+		glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
+		glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection) {
 
 	//Variablen Name mit _uv ist im Paper (uv) und xn ist (x tiefgestelltes n)
 
 	//equation 9
 	float u = 0.5;
 	float v = 0.5;
-	glm::vec3 x = triangleA + u*(triangleB-triangleA) + v*(triangleC-triangleA);
-	glm::vec3 n = normalA + u*(normalB-normalA) + v*(normalC-normalA);
+	glm::vec3 x = triangleA + u * (triangleB - triangleA)
+			+ v * (triangleC - triangleA);
+	glm::vec3 n = normalA + u * (normalB - normalA) + v * (normalC - normalA);
 
 	//equation 10
 	glm::vec3 xu_uv = triangleB - triangleA;
@@ -190,14 +412,16 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 
 	glm::vec3 n_uv = glm::normalize(n);
 	float normN = glm::length(n);
-	glm::vec3 partU = normalB-normalA;
-	glm::vec3 partV = normalC-normalA;
-	glm::vec3 nu = partU/normN - (n*(glm::dot(n,partU))/(normN*normN*normN));
-	glm::vec3 nv = partV/normN - (n*(glm::dot(n,partV))/(normN*normN*normN));
+	glm::vec3 partU = normalB - normalA;
+	glm::vec3 partV = normalC - normalA;
+	glm::vec3 nu = partU / normN
+			- (n * (glm::dot(n, partU)) / (normN * normN * normN));
+	glm::vec3 nv = partV / normN
+			- (n * (glm::dot(n, partV)) / (normN * normN * normN));
 
 	//equation 11
-	glm::vec3 xu = xu_uv - (glm::dot(n_uv,xu_uv) * n_uv);
-	glm::vec3 xv = xv_uv - (glm::dot(n_uv,xu_uv) * n_uv);
+	glm::vec3 xu = xu_uv - (glm::dot(n_uv, xu_uv) * n_uv);
+	glm::vec3 xv = xv_uv - (glm::dot(n_uv, xu_uv) * n_uv);
 
 	//equation 1
 	float e = glm::dot(xu, xu);
@@ -215,21 +439,20 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	float o = -glm::dot(nv, xv);
 
 	//equation 4
-	float denominator = e*g - f*f;
-	if(glm::abs(denominator) < 1E-7)
-	{
+	float denominator = e * g - f * f;
+	if (glm::abs(denominator) < 1E-7) {
 		//std::cout << "miau miau miau"<< std::endl;
-		curvatureDirection[0] =0.0;
+		curvatureDirection[0] = 0.0;
 		curvatureDirection[1] = 0.0;
 		curvatureDirection[2] = 0.0;
 		return;
 	}
 
 	//weingarten matrix
-	float wein11 = ((l*g) - (m1*f)) / denominator;
-	float wein12 = ((m2*g) - (o*f)) / denominator;
-	float wein21 = ((m1*e) - (l*f)) / denominator;
-	float wein22 = ((o*e) - (m2*f)) / denominator;
+	float wein11 = ((l * g) - (m1 * f)) / denominator;
+	float wein12 = ((m2 * g) - (o * f)) / denominator;
+	float wein21 = ((m1 * e) - (l * f)) / denominator;
+	float wein22 = ((o * e) - (m2 * f)) / denominator;
 
 	//calc eigenvector
 	Eigen::Matrix2f w;
@@ -240,9 +463,9 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 
 	//TODO choose which direction (currently always choose the biggest)
 	Eigen::Vector2f eigVec;
-	if(es.eigenvalues()[0].real() > es.eigenvalues()[1].real()){
+	if (es.eigenvalues()[0].real() > es.eigenvalues()[1].real()) {
 		eigVec = w1;
-	}else{
+	} else {
 		eigVec = w2;
 	}
 	//calc principal direction
@@ -264,27 +487,31 @@ void Model::MeshEntry::render() {
 //-----------------------------------------------------------------
 
 Model::Model(const char *filename) {
-			Assimp::Importer importer;
-			const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace);
-			if (!scene) {
-				printf("Unable to load mesh: %s\n", importer.GetErrorString());
-			}
+	Assimp::Importer importer;
+	const aiScene *scene = importer.ReadFile(filename,
+			aiProcess_Triangulate | aiProcess_GenSmoothNormals
+					| aiProcess_FixInfacingNormals
+					| aiProcess_CalcTangentSpace);
+	if (!scene) {
+		printf("Unable to load mesh: %s\n", importer.GetErrorString());
+	}
 
-			for (int i = 0; i < scene->mNumMeshes; ++i) {
-				_meshEntries.push_back(new Model::MeshEntry(scene->mMeshes[i]));
-			}
-		}
+//TODO starte mit i=1, weil das erste Mesh von pot.obj der Boden ist, dieser darf keine Plane sein
+	for (int i = 1; i < scene->mNumMeshes; ++i) {
+		_meshEntries.push_back(new Model::MeshEntry(scene->mMeshes[i], i));
+	}
+}
 
 Model::~Model() {
 
-	for(int i = 0; i < _meshEntries.size(); ++i) {
+	for (int i = 0; i < _meshEntries.size(); ++i) {
 		delete _meshEntries.at(i);
 	}
 	_meshEntries.clear();
 }
 
 void Model::render() {
-	for(int i = 0; i < _meshEntries.size(); ++i) {
+	for (int i = 0; i < _meshEntries.size(); ++i) {
 		_meshEntries.at(i)->render();
 	}
 }
