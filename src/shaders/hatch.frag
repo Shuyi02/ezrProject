@@ -16,6 +16,7 @@ uniform sampler2D hatch03;
 uniform sampler2D hatch04;
 uniform sampler2D hatch05;
 uniform sampler2D shadowMap;
+uniform sampler2D normalDepth;
 
 // Ouput data
 out vec3 fcolor;
@@ -100,33 +101,61 @@ void main()
 	vec4 h4 = texture(hatch04,uv) * weight4;
 	vec4 h5 = texture(hatch05,uv) * weight5;
 	
-	//----------------------------------------------------------------- fragment color
-	//fcolor = diffLightColor * lightPower * cosTheta / (distance*distance) +
-	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
-	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
-	
+	//----------------------------------------------------------------- hatch color
 	vec3 hatchColor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
 	
 	//threshold
-	fcolor = hatchColor;
 	if(hatchColor.x < 0.6){
-		fcolor = vec3(0.0);
+		hatchColor = vec3(0.0);
 	}else{
-		fcolor = vec3(1.0);
+		hatchColor = vec3(1.0);
 	}
+
+
+
+	//------------------------------------------------------------------- outline
+
+	// look neighbor pixels in 8th-neighborhood
+	vec4 miauX = texture(normalDepth, gl_FragCoord.xy/vec2(1024,768));
+	vec4 miauA = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,-1.0))/vec2(1024,768));
+	vec4 miauB = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,-1.0))/vec2(1024,768));
+	vec4 miauC = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,-1.0))/vec2(1024,768));
+	vec4 miauD = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,0.0))/vec2(1024,768));
+	vec4 miauE = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,0.0))/vec2(1024,768));
+	vec4 miauF = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,1.0))/vec2(1024,768));
+	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(1024,768));
+	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(1024,768));
 	
-	//----------------------------------------------------------------dummy outline ^^
-	//float depth = vertex_camera.z;
-	//float depth = gl_FragCoord.z;
-	//float dduTiefe = dFdx(depth); 
-	//float ddvTiefe = dFdy(depth);
-	//vec2 gradTiefe = vec2(dduTiefe,ddvTiefe);
-	//float rate = length(gradTiefe);
+	//gradients in x and y
+	vec4 Gx = miauA + 2*miauD + miauF - miauC - 2*miauE - miauH;
+	vec4 Gy = miauA + 2*miauB + miauC - miauF - 2*miauG - miauH;
 	
-	//if(rate > 0.0001){
-	//	fcolor = vec3(0.0);
-	//}
-	//else{
-	//	fcolor = hatchColor;
-	//}
+	//gradients components
+	float gDepth = sqrt(Gx.w*Gx.w + Gy.w*Gy.w);
+	float gNormalx = sqrt(Gx.x*Gx.x + Gy.x*Gy.x);
+	float gNormaly = sqrt(Gx.y*Gx.y + Gy.y*Gy.y);
+	float gNormalz= sqrt(Gx.z*Gx.z + Gy.z*Gy.z);
+	
+	//all in all gradient, should be used differently maybe :D
+	float g = gDepth + gNormalx + gNormaly + gNormalz;
+	
+	//---------- optional try more like paper maybe for a better or worse result lol
+	//float Gx_normal = length(miauA.xyz-miauX and so on) + 2*length(miauD.xyz) + length(miauF.w) 
+	//				  - length(miauC.xyz) - 2*length(miauE.xyz) - length(miauH.xyz);
+	//float Gy_normal = length(miauA.xyz) + 2*length(miauB.xyz) + length(miauC.xyz) 
+	//				  - length(miauF.xyz) - 2*length(miauG.xyz) - length(miauH.xyz);
+	//float gDepth = sqrt(Gx.w*Gx.w + Gy.w*Gy.w);
+	//float gNormalx = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+
+	
+	//---------------------------------------------------------------------------frag color
+	fcolor = hatchColor;
+	
+	//threshold for outline (or something different, maybe with paper normals, dunno)
+	if(gNormaly >= 0.7 || gNormalx >= 0.7 || gNormalz >= 0.7){
+		fcolor = vec3(0.0, 0.0, 0.0);
+	}
+
 }
