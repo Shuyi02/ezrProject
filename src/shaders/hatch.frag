@@ -139,6 +139,44 @@ void main()
 	//all in all gradient, should be used differently maybe :D
 	float g = gDepth + gNormalx + gNormaly + gNormalz;
 	
+	
+	//--------------------------------- test outline more paperlike --------------------------------------------------
+	// ich war mir nicht sicher ob wenn man den gesamten vektor als gradi nimmt das gleiche raus kommt, wie wenn man davor daraus nur einen "grauwert" macht
+	//test outline more paperlike -> NormalMap Gray 
+	float mauA = miauA.x*0.3 + miauA.y*0.59 + miauA.z*0.11;
+	float mauB = miauB.x*0.3 + miauB.y*0.59 + miauB.z*0.11;
+	float mauC = miauC.x*0.3 + miauC.y*0.59 + miauC.z*0.11;
+	float mauD = miauD.x*0.3 + miauD.y*0.59 + miauD.z*0.11;
+	float mauE = miauE.x*0.3 + miauE.y*0.59 + miauE.z*0.11;
+	float mauF = miauF.x*0.3 + miauF.y*0.59 + miauF.z*0.11;
+	float mauG = miauG.x*0.3 + miauG.y*0.59 + miauG.z*0.11;
+	float mauH = miauH.x*0.3 + miauH.y*0.59 + miauH.z*0.11;
+
+	float mA = abs(miauA.x-miauX.x)*0.3 + abs(miauA.y-miauX.y)*0.59 + abs(miauA.z-miauX.z)*0.11;
+	float mB = abs(miauB.x-miauX.x)*0.3 + abs(miauB.y-miauX.y)*0.59 + abs(miauB.z-miauX.z)*0.11;
+	float mC = abs(miauC.x-miauX.x)*0.3 + abs(miauC.y-miauX.y)*0.59 + abs(miauC.z-miauX.z)*0.11;
+	float mD = abs(miauD.x-miauX.x)*0.3 + abs(miauD.y-miauX.y)*0.59 + abs(miauD.z-miauX.z)*0.11;
+	float mE = abs(miauE.x-miauX.x)*0.3 + abs(miauE.y-miauX.y)*0.59 + abs(miauE.z-miauX.z)*0.11;
+	float mF = abs(miauF.x-miauX.x)*0.3 + abs(miauF.y-miauX.y)*0.59 + abs(miauF.z-miauX.z)*0.11;
+	float mG = abs(miauG.x-miauX.x)*0.3 + abs(miauG.y-miauX.y)*0.59 + abs(miauG.z-miauX.z)*0.11;
+	float mH = abs(miauH.x-miauX.x)*0.3 + abs(miauH.y-miauX.y)*0.59 + abs(miauH.z-miauX.z)*0.11;
+	
+	//float g = 0.125*(length(miauA-miauX) + 2*(length(miauB-miauX)) + length(miauC-miauX) + 2*(length(miauD-miauX)) + 2*(length(miauE-miauX)) + length(miauF-miauX) + 2*(length(miauG-miauX)) + length(miauH-miauX));
+	float g_depth = 0.75*(abs(miauA.w-miauX.w) + 2*(abs(miauB.w-miauX.w)) + abs(miauC.w-miauX.w) + 2*(abs(miauD.w-miauX.w)) + 2*(abs(miauE.w-miauX.w)) + abs(miauF.w-miauX.w) + 2*(abs(miauG.w-miauX.w)) + abs(miauH.w-miauX.w));
+	float g_normal = 0.75*(mA + 2*mB + mC + 2*mD + 2*mE + mF + 2*mG + mH);
+	
+	//gradient normal
+	float Gx_normal = mauA + 2*mauD + mauF - mauC - 2*mauE - mauH;
+	float Gy_normal = mauA + 2*mauB + mauC - mauF - 2*mauG - mauH;
+	
+	//gradient depth
+	float Gx_depth = miauA.w + 2*miauD.w + miauF.w - miauC.w - 2*miauE.w - miauH.w;
+	float Gy_depth = miauA.w + 2*miauB.w + miauC.w - miauF.w - 2*miauG.w - miauH.w;
+	
+	//gradients components
+	float gDepth_2 = sqrt(Gx_depth*Gx_depth + Gy_depth*Gy_depth);
+	float gNormal_2 = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+	
 	//---------- optional try more like paper maybe for a better or worse result lol
 	//float Gx_normal = length(miauA.xyz-miauX and so on) + 2*length(miauD.xyz) + length(miauF.w) 
 	//				  - length(miauC.xyz) - 2*length(miauE.xyz) - length(miauH.xyz);
@@ -154,8 +192,14 @@ void main()
 	fcolor = hatchColor;
 	
 	//threshold for outline (or something different, maybe with paper normals, dunno)
-	if(gNormaly >= 0.7 || gNormalx >= 0.7 || gNormalz >= 0.7){
+	//if( gNormaly >= 0.45|| gNormalx >= 0.6 || gNormalz >= 0.6 || gDepth >= 0.005   ){
+	//if( gNormal_2 >= ((g_normal*g_normal)/0.04) || gDepth >= 0.005   ){  //fuuuu g_normal blaa wie im paper geht nicht
+	if( gNormal_2 >= 0.6 || gDepth >= 0.005 ){
 		fcolor = vec3(0.0, 0.0, 0.0);
 	}
+	
+	//if(gDepth_2 <= g_depth || gNormal_2 <= g_normal){ // fuuu paper threshold geht nicht
+	//	fcolor = vec3(0.0, 0.0, 0.0);
+	//}
 
 }
