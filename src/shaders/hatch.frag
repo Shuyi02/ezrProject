@@ -101,45 +101,22 @@ void main()
 	vec4 h4 = texture(hatch04,uv) * weight4;
 	vec4 h5 = texture(hatch05,uv) * weight5;
 	
-	//----------------------------------------------------------------- fragment color
-	//fcolor = diffLightColor * lightPower * cosTheta / (distance*distance) +
-	//diffLightColor * lightPower * pow(cosAlpha,3) / (distance*distance);
-	//fcolor = vec3(dot(normalize(normal_camera), normalize(lightPos_camera)));
-	
+	//----------------------------------------------------------------- hatch color
 	vec3 hatchColor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
 	
 	//threshold
-	fcolor = hatchColor;
 	if(hatchColor.x < 0.6){
-		fcolor = vec3(0.0);
+		hatchColor = vec3(0.0);
 	}else{
-		fcolor = vec3(1.0);
+		hatchColor = vec3(1.0);
 	}
-	
-	//----------------------------------------------------------------dummy outline ^^
-	//mittlere mittelpixel ist gl_FragCoord.xy 
-	vec2 suv = gl_FragCoord.xy/vec2(1024,768); 
-	
-	//float depth = vertex_camera.z;
-	//float depth = gl_FragCoord.z;
-	//float dduTiefe = dFdx(texture(normalDepth,gl_FragCoord.xy).w); 
-	//float ddvTiefe = dFdy(texture(normalDepth,gl_FragCoord.xy).w);
-	//vec2 gradTiefe = vec2(dduTiefe,ddvTiefe);
-	//float rate = length(gradTiefe);
-	
-	//vec4 outlineWight;
-	//if(rate > 0.392){
-	//	outlineWight = vec4(0.0,0.0,0.0,1.0);
-	//}
-	//else{
-	//	outlineWight = vec4(1.0,0.0,0.0,1.0);
-	//}
-	
-	
+
+
+
+	//------------------------------------------------------------------- outline
+
 	// look neighbor pixels in 8th-neighborhood
-	//  miauA  miauB  miauC
-	//  miauD    X    miauE
-	//  miauF  miauG  miauH
+	vec4 miauX = texture(normalDepth, gl_FragCoord.xy/vec2(1024,768));
 	vec4 miauA = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,-1.0))/vec2(1024,768));
 	vec4 miauB = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,-1.0))/vec2(1024,768));
 	vec4 miauC = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,-1.0))/vec2(1024,768));
@@ -149,21 +126,36 @@ void main()
 	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(1024,768));
 	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(1024,768));
 	
-	//Sobel for the depth
-	float Gx_depth = miauA.w+2*miauD.w+miauF.w-miauC.w-2*miauE.w-miauH.w;
-	float Gy_depth = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	//gradients in x and y
+	vec4 Gx = miauA + 2*miauD + miauF - miauC - 2*miauE - miauH;
+	vec4 Gy = miauA + 2*miauB + miauC - miauF - 2*miauG - miauH;
 	
+	//gradients components
+	float gDepth = sqrt(Gx.w*Gx.w + Gy.w*Gy.w);
+	float gNormalx = sqrt(Gx.x*Gx.x + Gy.x*Gy.x);
+	float gNormaly = sqrt(Gx.y*Gx.y + Gy.y*Gy.y);
+	float gNormalz= sqrt(Gx.z*Gx.z + Gy.z*Gy.z);
 	
-	//TODO: NormalMap in Grau! 0.3 * red+ 0.59 * green+ 0.11 * blue
-	float Gx_normal = miauA.x*0.3+miauA.y*0.59+miauA.z*0.11+2*miauD.x*0.3+2*miauD.y*0.59+2*miauD.z*0.11 + miauF.x*0.3-miauF.y*0.59-miauF.z*0.11 - miauC.x*0.3-miauC.y*0.11-miauC.z*0.11 - 2*miauE.x*0.3-2*miauE.y*0.59-2*miauE.z*0.11 - miauH.x*0.3-miauH.y*0.59-miauH.z*0.11;
-	float Gy_normal = miauA.w+2*miauB.w+miauC.w-miauF.w-2*miauG.w-miauH.w;
+	//all in all gradient, should be used differently maybe :D
+	float g = gDepth + gNormalx + gNormaly + gNormalz;
 	
-	
-	//float G = length(Gx)+length(Gy);
+	//---------- optional try more like paper maybe for a better or worse result lol
+	//float Gx_normal = length(miauA.xyz-miauX and so on) + 2*length(miauD.xyz) + length(miauF.w) 
+	//				  - length(miauC.xyz) - 2*length(miauE.xyz) - length(miauH.xyz);
+	//float Gy_normal = length(miauA.xyz) + 2*length(miauB.xyz) + length(miauC.xyz) 
+	//				  - length(miauF.xyz) - 2*length(miauG.xyz) - length(miauH.xyz);
+	//float gDepth = sqrt(Gx.w*Gx.w + Gy.w*Gy.w);
+	//float gNormalx = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
+	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
 
-//	fcolor *= outlineWight.xyz;
-	fcolor *= texture(normalDepth,suv).xyz; //Normalmap with Hatching
-//	fcolor = texture(normalDepth,suv).xyz;
-//	fcolor = vec3(suv,0.0);
 	
+	//---------------------------------------------------------------------------frag color
+	fcolor = hatchColor;
+	
+	//threshold for outline (or something different, maybe with paper normals, dunno)
+	if(gNormaly >= 0.7 || gNormalx >= 0.7 || gNormalz >= 0.7){
+		fcolor = vec3(0.0, 0.0, 0.0);
+	}
+
 }
