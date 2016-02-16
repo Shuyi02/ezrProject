@@ -14,6 +14,7 @@ using namespace std;
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/constants.hpp"
 
 #include "utils/Control.h"
 #include "utils/Model.h"
@@ -26,6 +27,12 @@ using namespace std;
 
 //not nice but camera mouse controls work
 GLFWwindow* window;
+
+void calcSphereCoords(glm::vec3& coords, float theta, float phi, float radius){
+	coords.x = radius * glm::cos(theta) * glm::sin(phi);
+	coords.y = radius * glm::cos(phi);
+	coords.z = radius * glm::sin(theta) * glm::sin(phi);
+}
 
 int main() {
 
@@ -96,7 +103,7 @@ int main() {
 
 	std::string texturePath = RESOURCES_PATH"/hatchesLess02/hatch";
 //	std::string texturePath = RESOURCES_PATH"/dots01/dots";
-	int mipMapLevel = 1;
+	int mipMapLevel = 4;
 	GLuint texture_hatch00 = utils::loadMipMapTexture(texturePath+"0", mipMapLevel);
 	GLuint texture_hatch01 = utils::loadMipMapTexture(texturePath+"1", mipMapLevel);
 	GLuint texture_hatch02 = utils::loadMipMapTexture(texturePath+"2", mipMapLevel);
@@ -143,7 +150,12 @@ int main() {
 		SHADERS_PATH "/hatch.frag");
 
 	//---------------------------------------------------------------- lightPosition
+
+	float phi = glm::pi<float>()/2;
+	float theta = glm::pi<float>();
+	float radius = 9.0;
 	glm::vec3 lightPos = glm::vec3(-8.0f, 6.0f, 0.0f);
+	calcSphereCoords(lightPos, theta, phi, radius);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
 	// --------------------------------------------------------------- Uniforms
@@ -274,23 +286,22 @@ int main() {
 //			lightPos.x = -8.0;
 //		}
 		if(glfwGetKey(window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-			lightPos.x += 0.01;
+			phi -= 0.005;
+			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS){
-			lightPos.x -= 0.01;
+			phi += 0.005;
+			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_UP ) == GLFW_PRESS){
-			lightPos.y += 0.01;
+			theta -= 0.001;
+			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS){
-			lightPos.y -= 0.01;
+			theta += 0.001;
+			calcSphereCoords(lightPos, theta, phi, radius);
 		}
-		if(glfwGetKey(window, GLFW_KEY_N ) == GLFW_PRESS){
-			lightPos.z -= 0.01;
-		}
-		if(glfwGetKey(window, GLFW_KEY_M ) == GLFW_PRESS){
-			lightPos.z += 0.01;
-		}
+
 		glUniform3f(lightID, lightPos.x, lightPos.y, lightPos.z);
 
 		//---------------------------------------------------------------------------- render the light bulb
