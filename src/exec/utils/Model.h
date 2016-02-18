@@ -24,7 +24,7 @@ namespace utils {
 class Model {
 public:
 	struct MeshEntry {
-		MeshEntry(aiMesh *mesh);
+		MeshEntry(aiMesh *mesh, int mode);
 		~MeshEntry();
 
 		void load(aiMesh *mesh);
@@ -42,7 +42,7 @@ public:
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
 				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection);
 	};
-	Model(const char *filename);
+	Model(const char *filename, int mode);
 	virtual ~Model();
 
 	void render();

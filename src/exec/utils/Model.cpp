@@ -21,7 +21,7 @@ namespace utils {
 /**
 *	Constructor, loading the specified aiMesh
 **/
-Model::MeshEntry::MeshEntry(aiMesh *mesh) {
+Model::MeshEntry::MeshEntry(aiMesh *mesh, int mode) {
 
 	//	Vertices = vbo[0]
 	//	Normals = vbo[1]
@@ -68,12 +68,15 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh) {
 			getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
 
 			//rotate texture into same direction as a direction (e.g. curvature)
-			glm::vec3 globalDir(0.0, 1.0, 0.0);
+			glm::vec3 globalDir(1.0, 0.0, 0.0);
 			glm::vec2 u1;
 			glm::vec2 u2;
 			glm::vec2 u3;
-			calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
 
+			if(mode == 1)
+				calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
+			else
+				calcTexCoord(globalDir, a, b, c, u1, u2, u3);
 			//scale texture depending on triangle size
 			float triangleArea = 0.5*glm::length(glm::cross(b-a, c-a));
 			float scale = glm::sqrt(triangleArea/0.2);
@@ -223,8 +226,7 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	float denominator = e*g - f*f;
 	if(glm::abs(denominator) < 1E-7)
 	{
-		//std::cout << "miau miau miau"<< std::endl;
-		curvatureDirection[0] =0.0;
+		curvatureDirection[0] = 0.0;
 		curvatureDirection[1] = 0.0;
 		curvatureDirection[2] = 0.0;
 		return;
@@ -236,14 +238,14 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	float wein21 = ((m1*e) - (l*f)) / denominator;
 	float wein22 = ((o*e) - (m2*f)) / denominator;
 
-	//calc eigenvector
+	//calc eigenvectors
 	Eigen::Matrix2f w;
 	w << wein11, wein12, wein21, wein22;
 	Eigen::EigenSolver<Eigen::Matrix2f> es(w);
 	Eigen::Vector2f w1 = es.eigenvectors().col(0).real();
 	Eigen::Vector2f w2 = es.eigenvectors().col(1).real();
 
-	//TODO choose which direction (currently always choose the biggest)
+	//choose which direction (currently always choose the biggest)
 	float eigValue;
 	Eigen::Vector2f eigVec;
 	if(es.eigenvalues()[0].real() > es.eigenvalues()[1].real()){
@@ -255,8 +257,9 @@ void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
 	}
 	//calc principal direction
 	glm::vec3 k1 = eigVec[0] * xu + eigVec[1] * xv;
-//	glm::vec3 k2 = w1[0] * xu + w1[1] * xv;
+	//glm::vec3 k2 = w1[0] * xu + w1[1] * xv;
 
+	//if there is no curvature
 	if(glm::abs(eigValue) <= 0.001){
 		curvatureDirection = glm::vec3(1.0, 0.0, 0.0);
 	}else{
@@ -276,7 +279,7 @@ void Model::MeshEntry::render() {
 
 //-----------------------------------------------------------------
 
-Model::Model(const char *filename) {
+Model::Model(const char *filename, int mode) {
 			Assimp::Importer importer;
 			const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace);
 			if (!scene) {
@@ -284,7 +287,7 @@ Model::Model(const char *filename) {
 			}
 
 			for (int i = 0; i < scene->mNumMeshes; ++i) {
-				_meshEntries.push_back(new Model::MeshEntry(scene->mMeshes[i]));
+				_meshEntries.push_back(new Model::MeshEntry(scene->mMeshes[i], mode));
 			}
 		}
 
