@@ -21,6 +21,10 @@ uniform sampler2D normalDepth;
 // Ouput data
 out vec3 fcolor;
 
+//window 
+int windowHeight = 768;
+int windowWidth = 1024;
+
 void main()
 {	
 	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
@@ -48,7 +52,6 @@ void main()
 	float visibility = 1.0;
 	//check if current fragment(the shadowCoord) is behind the shadow
 	vec4 value = texture(shadowMap, shadowCoord.xy);
-	//float depth = value.x;
 	if ( value.x  <  shadowCoord.z-bias){
 		visibility = 0.0;
 	}
@@ -116,15 +119,15 @@ void main()
 	//------------------------------------------------------------------- outline
 
 	// look neighbor pixels in 8th-neighborhood
-	vec4 miauX = texture(normalDepth, gl_FragCoord.xy/vec2(1024,768));
-	vec4 miauA = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,-1.0))/vec2(1024,768));
-	vec4 miauB = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,-1.0))/vec2(1024,768));
-	vec4 miauC = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,-1.0))/vec2(1024,768));
-	vec4 miauD = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,0.0))/vec2(1024,768));
-	vec4 miauE = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,0.0))/vec2(1024,768));
-	vec4 miauF = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,1.0))/vec2(1024,768));
-	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(1024,768));
-	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(1024,768));
+	vec4 miauX = texture(normalDepth, gl_FragCoord.xy/vec2(windowWidth,windowHeight));
+	vec4 miauA = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,-1.0))/vec2(windowWidth,windowHeight));
+	vec4 miauB = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,-1.0))/vec2(windowWidth,windowHeight));
+	vec4 miauC = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,-1.0))/vec2(windowWidth,windowHeight));
+	vec4 miauD = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,0.0))/vec2(windowWidth,windowHeight));
+	vec4 miauE = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,0.0))/vec2(windowWidth,windowHeight));
+	vec4 miauF = texture(normalDepth,(gl_FragCoord.xy + vec2(-1.0,1.0))/vec2(windowWidth,windowHeight));
+	vec4 miauG = texture(normalDepth,(gl_FragCoord.xy + vec2(0.0,1.0))/vec2(windowWidth,windowHeight));
+	vec4 miauH = texture(normalDepth,(gl_FragCoord.xy + vec2(1.0,1.0))/vec2(windowWidth,windowHeight));
 	
 	//gradients in x and y
 	vec4 Gx = miauA + 2*miauD + miauF - miauC - 2*miauE - miauH;
@@ -137,7 +140,7 @@ void main()
 	float gNormalz= sqrt(Gx.z*Gx.z + Gy.z*Gy.z);
 	
 	//all in all gradient, should be used differently maybe :D
-	float g = gDepth + gNormalx + gNormaly + gNormalz;
+	//float g = gDepth + gNormalx + gNormaly + gNormalz;
 	
 	//---------- optional try more like paper maybe for a better or worse result lol
 	//float Gx_normal = length(miauA.xyz-miauX and so on) + 2*length(miauD.xyz) + length(miauF.w) 
@@ -154,7 +157,7 @@ void main()
 	fcolor = hatchColor;
 	
 	//threshold for outline (or something different, maybe with paper normals, dunno)
-	if(gNormaly >= 0.7 || gNormalx >= 0.7 || gNormalz >= 0.7){
+	if(gNormaly >= 0.7 || gNormalx >= 0.7 || gNormalz >= 0.7 || gDepth >= 0.005){
 		fcolor = vec3(0.0, 0.0, 0.0);
 	}
 

@@ -28,10 +28,16 @@ using namespace std;
 //not nice but camera mouse controls work
 GLFWwindow* window;
 
+int windowHeight = 768;
+int windowWidth = 1024;
+
 void calcSphereCoords(glm::vec3& coords, float theta, float phi, float radius){
-	coords.x = radius * glm::cos(theta) * glm::sin(phi);
-	coords.y = radius * glm::cos(phi);
-	coords.z = radius * glm::sin(theta) * glm::sin(phi);
+//	coords.x = radius * glm::cos(theta) * glm::sin(phi);
+//	coords.y = radius * glm::cos(phi);
+//	coords.z = radius * glm::sin(theta) * glm::sin(phi);
+	coords.x = radius * glm::cos(theta) * glm::cos(phi);
+	coords.y = radius * glm::cos(phi) * glm::sin(theta);
+	coords.z = radius * glm::sin(phi);
 }
 
 int main() {
@@ -49,7 +55,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //we don't want the old OpenGL
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "myEZR", NULL, NULL);
+	window = glfwCreateWindow(windowWidth, windowHeight, "myEZR", NULL, NULL);
 
 	if (window == NULL) {
 		fprintf( stderr,
@@ -74,7 +80,7 @@ int main() {
 
 	// Set the mouse at the center of the screen
 	glfwPollEvents();
-	glfwSetCursorPos(window, 1024 / 2, 768 / 2);
+	glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
@@ -88,13 +94,13 @@ int main() {
 
 	// --------------------------------------------------------------------- Load Model and Texture
 
-	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
-	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
+//	utils::Model *ml_ogre = new utils::Model(RESOURCES_PATH "/Models/imrod/ImrodLowPoly.obj");
+//	utils::Model *ml_sphere = new utils::Model(RESOURCES_PATH "/Models/sphere/sphere.obj");
 	utils::Model *ml_lightSphere = new utils::Model(RESOURCES_PATH "/Models/sphere/lightOrb.obj");
-	utils::Model *ml_suzanne = new utils::Model(RESOURCES_PATH "/Models/suzanne/suzanne.obj");
+//	utils::Model *ml_suzanne = new utils::Model(RESOURCES_PATH "/Models/suzanne/suzanne.obj");
 	utils::Model *ml_teapot = new utils::Model(RESOURCES_PATH "/Models/teapot/pot.obj");
-	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
-	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
+//	utils::Model *ml_tetris= new utils::Model(RESOURCES_PATH "/Models/tetris/tetris.obj");
+//	utils::Model *ml_torus= new utils::Model(RESOURCES_PATH "/Models/torus/torus.obj");
 	utils::Model *currentModel = ml_teapot;
 
 	GLuint texture_kitty = utils::loadTexture(RESOURCES_PATH"/kitty.jpg");
@@ -125,7 +131,7 @@ int main() {
 	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, 1024, 1024, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, windowWidth, windowWidth, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -158,7 +164,7 @@ int main() {
 	glGenTextures(1, &normalDepthTexture);
 	glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
 	//properties
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1024, 1024, 0, GL_RGBA, GL_FLOAT, 0); //RGBA 4 Parameter, Aufloesung 1024x1024 als Angabe fuer Texture2D
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, windowWidth, windowWidth, 0, GL_RGBA, GL_FLOAT, 0); //RGBA 4 Parameter, Aufloesung 1024x1024 als Angabe fuer Texture2D
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in u Richtung
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in v Richtung
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //nimmt naechsten Pixelwert und interpoliert nich von den 4 nachbarn
@@ -168,7 +174,7 @@ int main() {
 	 GLuint depthrenderbuffer;
 	 glGenRenderbuffers(1, &depthrenderbuffer);
 	 glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-	 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 1024);
+	 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowWidth, windowWidth);
 	 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
 	 //set texture as our colour attachement #0
@@ -188,9 +194,9 @@ int main() {
 
 	//---------------------------------------------------------------- lightPosition
 
-	float phi = glm::pi<float>()/2;
-	float theta = glm::pi<float>();
-	float radius = 9.0;
+	float theta = glm::pi<float>()/4;
+	float phi = 0.0;
+	float radius = 10.0;
 	glm::vec3 lightPos = glm::vec3(-8.0f, 6.0f, 0.0f);
 	calcSphereCoords(lightPos, theta, phi, radius);
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
@@ -225,7 +231,7 @@ int main() {
 	do {
 		// --------------------------------------------------------------------------  render to texture shadowmap
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
-		glViewport(0,0,1024,1024);
+		glViewport(0,0,windowWidth,windowWidth);
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -257,13 +263,12 @@ int main() {
 							0.5, 0.0, 0.0, 0.0,
 							0.0, 0.5, 0.0, 0.0,
 							0.0, 0.0, 0.5, 0.0,
-							0.5, 0.5, 0.5, 1.0
-						);
+							0.5, 0.5, 0.5, 1.0);
 				glm::mat4 depthBiasMVP = biasMatrix*depthMVP;
 
 		//------------------------------------------------------------------------------ Render to texture outline stuff
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferOutline);
-		glViewport(0,0,1024,1024);
+		glViewport(0,0,windowWidth,windowWidth);
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -283,7 +288,7 @@ int main() {
 
 		//---------------------------------------------------------------------------- render to the screen
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0,0,1024, 768);
+		glViewport(0,0,windowWidth, windowHeight);
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -347,19 +352,19 @@ int main() {
 
 		//------------------------------------------------------------------------------ adjust Light Position
 		if(glfwGetKey(window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-			phi -= 0.005;
+			theta -= 0.005;
 			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS){
-			phi += 0.005;
+			theta += 0.005;
 			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_UP ) == GLFW_PRESS){
-			theta -= 0.001;
+			phi += 0.005;
 			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 		if(glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS){
-			theta += 0.001;
+			phi -= 0.005;
 			calcSphereCoords(lightPos, theta, phi, radius);
 		}
 
