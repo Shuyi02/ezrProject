@@ -226,7 +226,7 @@ int main() {
 	GLuint lightMatrixP = glGetUniformLocation(lightProgramID, "p");
 
 	//===========================
-	//1
+	//1 only blending
 	//============================================================================== shaders and setup for only hatching
 	GLuint programID1 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch1Only.frag");
@@ -251,10 +251,10 @@ int main() {
 	GLuint normalDepthID1 = glGetUniformLocation(programID1, "normalDepth");//outline
 
 	//===========================
-	//2
+	//2 threshold
 	//============================================================================== shaders and setup for only hatching
 	GLuint programID2 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
-		SHADERS_PATH "/hatch2Shadow.frag");
+		SHADERS_PATH "/hatch2Threshold.frag");
 
 	// ----------- Uniforms
 	//handle for mvp modelViwProjMatrix uniform
@@ -274,6 +274,56 @@ int main() {
 	GLuint hatch05ID2 = glGetUniformLocation(programID2, "hatch05");
 	GLuint shadowMapID2 = glGetUniformLocation(programID2, "shadowMap");
 	GLuint normalDepthID2 = glGetUniformLocation(programID2, "normalDepth");//outline
+
+	//===========================
+	//3 outline
+	//============================================================================== shaders and setup for only hatching
+	GLuint programID3 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
+		SHADERS_PATH "/hatch3Outline.frag");
+
+	// ----------- Uniforms
+	//handle for mvp modelViwProjMatrix uniform
+	GLuint MatrixM3 = glGetUniformLocation(programID3, "m");
+	GLuint MatrixV3 = glGetUniformLocation(programID3, "v");
+	GLuint MatrixP3 = glGetUniformLocation(programID3, "p");
+	GLuint MatrixMV_ti3 = glGetUniformLocation(programID3, "mv_ti");
+	GLuint depthMVPID3 = glGetUniformLocation(programID3, "depthMVP");
+	GLuint lightID3 = glGetUniformLocation(programID3, "lightPos_Model");
+
+	//handle for texture sampler uniform
+	GLuint hatch00ID3 = glGetUniformLocation(programID3, "hatch00");
+	GLuint hatch01ID3 = glGetUniformLocation(programID3, "hatch01");
+	GLuint hatch02ID3 = glGetUniformLocation(programID3, "hatch02");
+	GLuint hatch03ID3 = glGetUniformLocation(programID3, "hatch03");
+	GLuint hatch04ID3 = glGetUniformLocation(programID3, "hatch04");
+	GLuint hatch05ID3 = glGetUniformLocation(programID3, "hatch05");
+	GLuint shadowMapID3 = glGetUniformLocation(programID3, "shadowMap");
+	GLuint normalDepthID3 = glGetUniformLocation(programID3, "normalDepth");//outline
+
+	//===========================
+	//4 outline
+	//============================================================================== shaders and setup for only hatching
+	GLuint programID4 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
+		SHADERS_PATH "/hatch4Shadow.frag");
+
+	// ----------- Uniforms
+	//handle for mvp modelViwProjMatrix uniform
+	GLuint MatrixM4 = glGetUniformLocation(programID4, "m");
+	GLuint MatrixV4 = glGetUniformLocation(programID4, "v");
+	GLuint MatrixP4 = glGetUniformLocation(programID4, "p");
+	GLuint MatrixMV_ti4 = glGetUniformLocation(programID4, "mv_ti");
+	GLuint depthMVPID4 = glGetUniformLocation(programID4, "depthMVP");
+	GLuint lightID4 = glGetUniformLocation(programID4, "lightPos_Model");
+
+	//handle for texture sampler uniform
+	GLuint hatch00ID4 = glGetUniformLocation(programID4, "hatch00");
+	GLuint hatch01ID4 = glGetUniformLocation(programID4, "hatch01");
+	GLuint hatch02ID4 = glGetUniformLocation(programID4, "hatch02");
+	GLuint hatch03ID4 = glGetUniformLocation(programID4, "hatch03");
+	GLuint hatch04ID4 = glGetUniformLocation(programID4, "hatch04");
+	GLuint hatch05ID4 = glGetUniformLocation(programID4, "hatch05");
+	GLuint shadowMapID4 = glGetUniformLocation(programID4, "shadowMap");
+	GLuint normalDepthID4 = glGetUniformLocation(programID4, "normalDepth");//outline
 
 	//===========================
 	//9
@@ -321,9 +371,17 @@ int main() {
 		if(glfwGetKey(window, GLFW_KEY_1 ) == GLFW_PRESS){
 			sceneType = 1;
 		}
-		//shader with hatches + shadow
+		//shader with hatches + thresh
 		if(glfwGetKey(window, GLFW_KEY_2 ) == GLFW_PRESS){
 			sceneType = 2;
+		}
+		//shader with hatches + thresh + thresh + outline
+		if(glfwGetKey(window, GLFW_KEY_3 ) == GLFW_PRESS){
+			sceneType = 3;
+		}
+		//shader with hatches + thresh + outline + shadow
+		if(glfwGetKey(window, GLFW_KEY_4 ) == GLFW_PRESS){
+			sceneType = 4;
 		}
 		//shader with everything except threshold
 		if(glfwGetKey(window, GLFW_KEY_9 ) == GLFW_PRESS){
@@ -531,6 +589,90 @@ int main() {
 				glActiveTexture(GL_TEXTURE7);
 				glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
 				glUniform1i(normalDepthID2, 7);
+				break;
+			case 3:
+				//use shader with hatch + threshold
+				glUseProgram(programID3);
+
+				//send transformations to currently bound shader in the mvp uniform
+				glUniformMatrix4fv(MatrixM3, 1, GL_FALSE, &m[0][0]);
+				glUniformMatrix4fv(MatrixV3, 1, GL_FALSE, &v[0][0]);
+				glUniformMatrix4fv(MatrixP3, 1, GL_FALSE, &p[0][0]);
+				glUniformMatrix4fv(MatrixMV_ti3, 1, GL_FALSE, &mv_ti[0][0]);
+				glUniformMatrix4fv(depthMVPID3, 1, GL_FALSE, &depthMVP[0][0]);
+
+				glBindTexture(GL_TEXTURE_2D, texture_hatch00);
+				glUniform1i(hatch00ID3, 0);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch01);
+				glUniform1i(hatch01ID3, 1);
+
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch02);
+				glUniform1i(hatch02ID3, 2);
+
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch03);
+				glUniform1i(hatch03ID3, 3);
+
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch04);
+				glUniform1i(hatch04ID3, 4);
+
+				glActiveTexture(GL_TEXTURE5);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch05);
+				glUniform1i(hatch05ID3, 5);
+
+				glActiveTexture(GL_TEXTURE6);
+				glBindTexture(GL_TEXTURE_2D, depthTexture);
+				glUniform1i(shadowMapID3, 6);
+
+				glActiveTexture(GL_TEXTURE7);
+				glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
+				glUniform1i(normalDepthID3, 7);
+				break;
+			case 4:
+				//use shader with hatch + threshold
+				glUseProgram(programID4);
+
+				//send transformations to currently bound shader in the mvp uniform
+				glUniformMatrix4fv(MatrixM4, 1, GL_FALSE, &m[0][0]);
+				glUniformMatrix4fv(MatrixV4, 1, GL_FALSE, &v[0][0]);
+				glUniformMatrix4fv(MatrixP4, 1, GL_FALSE, &p[0][0]);
+				glUniformMatrix4fv(MatrixMV_ti4, 1, GL_FALSE, &mv_ti[0][0]);
+				glUniformMatrix4fv(depthMVPID4, 1, GL_FALSE, &depthMVP[0][0]);
+
+				glBindTexture(GL_TEXTURE_2D, texture_hatch00);
+				glUniform1i(hatch00ID4, 0);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch01);
+				glUniform1i(hatch01ID4, 1);
+
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch02);
+				glUniform1i(hatch02ID4, 2);
+
+				glActiveTexture(GL_TEXTURE3);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch03);
+				glUniform1i(hatch03ID4, 3);
+
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch04);
+				glUniform1i(hatch04ID4, 4);
+
+				glActiveTexture(GL_TEXTURE5);
+				glBindTexture(GL_TEXTURE_2D, texture_hatch05);
+				glUniform1i(hatch05ID4, 5);
+
+				glActiveTexture(GL_TEXTURE6);
+				glBindTexture(GL_TEXTURE_2D, depthTexture);
+				glUniform1i(shadowMapID4, 6);
+
+				glActiveTexture(GL_TEXTURE7);
+				glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
+				glUniform1i(normalDepthID4, 7);
 				break;
 			case 9:
 				//use shader with only hatches (no shadow, no threshold, no outline)
