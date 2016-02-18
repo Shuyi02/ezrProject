@@ -7,6 +7,12 @@
 using namespace std;
 
 namespace utils {
+
+/**
+ * @brief
+ * @input
+ * @output
+ */
 unsigned char* loadImage(const char* filename, int* imageWidth, int* imageHeight, int* comp) {
 	int req_comp=0;
 
@@ -22,6 +28,11 @@ unsigned char* loadImage(const char* filename, int* imageWidth, int* imageHeight
 	return image;
 }
 
+/**
+ * @brief
+ * @input
+ * @output
+ */
 GLuint loadTexture(const char* filename) {
 
 	GLuint texture;
@@ -46,6 +57,11 @@ GLuint loadTexture(const char* filename) {
 	return texture;
 }
 
+/**
+ * @brief
+ * @input
+ * @output
+ */
 GLuint loadMipMapTexture(string path, int levels){
 
 	GLuint texture;

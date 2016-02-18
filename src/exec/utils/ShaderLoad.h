@@ -1,10 +1,3 @@
-/*
- * ShaderLoad.h
- *
- *  Created on: Dec 4, 2015
- *      Author: Shuyi
- */
-
 #ifndef SRC_EXEC_UTILS_SHADERLOAD_H_
 #define SRC_EXEC_UTILS_SHADERLOAD_H_
 

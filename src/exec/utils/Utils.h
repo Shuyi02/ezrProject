@@ -1,10 +1,3 @@
-/*
- * Utils.h
- *
- *  Created on: Jan 24, 2016
- *      Author: Shuyi
- */
-
 #ifndef SRC_EXEC_UTILS_UTILS_H_
 #define SRC_EXEC_UTILS_UTILS_H_
 

@@ -1,10 +1,3 @@
-/*
- * ModelLoader.cpp
- *
- *  Created on: Dec 11, 2015
- *      Author: Shuyi
- */
-
 #include "Model.h"
 
 #include <iostream>
@@ -23,9 +16,9 @@ namespace utils {
 **/
 Model::MeshEntry::MeshEntry(aiMesh *mesh, int mode) {
 
-	//	Vertices = vbo[0]
-	//	Normals = vbo[1]
-	//	TexCoord = vbo[2]
+	//vertices = vbo[0]
+	//normals = vbo[1]
+	//texCoord = vbo[2]
 
 	_vbo[0] = NULL;
 	_vbo[1] = NULL;
@@ -169,10 +162,6 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	float angle = -acos(cosAlph);
 
 	glm::vec2 rotationPoint = u1;
-
-	//TODO maybe check if normal and curvature/tangent are the same
-	//if the same, than do something else or there will be no texture
-
 	glm::mat2 rotate = glm::mat2(cos(angle), sin(angle),
 			-sin(angle), cos(angle));
 

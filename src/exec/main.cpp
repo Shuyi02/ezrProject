@@ -25,7 +25,7 @@ using namespace std;
 
 #include "utils/TextureManager.h"
 
-//not nice but camera mouse controls work
+//not nice but camera mouse controls work HACK
 GLFWwindow* window;
 
 int windowHeight = 768;
@@ -39,19 +39,19 @@ void calcSphereCoords(glm::vec3& coords, float theta, float phi, float radius){
 
 int main() {
 
-	// --------------------------------------------------------------- setup
-	// initialize GLFW
+	// --------------------------------------------------------------------------------- setup
+	//initialize GLFW
 	if (!glfwInit()) {
 		fprintf( stderr, "Failed to initialize GLFW\n");
 		return -1;
 	}
 
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // we want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //we don't want the old OpenGL
 
-	// Open a window and create its OpenGL context
+	//open window and create its OpenGL context
 	window = glfwCreateWindow(windowWidth, windowHeight, "myEZR", NULL, NULL);
 
 	if (window == NULL) {
@@ -69,24 +69,23 @@ int main() {
 		return -1;
 	}
 
-	// ensure we can capture the escape key being pressed below
+	//ensure we capture escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-	// Hide the mouse and enable unlimited mouvement
+	//hide the mouse and enable unlimited movement
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// Set the mouse at the center of the screen
+	//set the mouse at the center of the screen
 	glfwPollEvents();
 	glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
 
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
-	// Enable depth test
+	//depth test
 	glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
+	//accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-
-	// Cull triangles which normal is not towards the camera
+	//cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
 	// --------------------------------------------------------------------- Load Model and Texture
@@ -117,15 +116,14 @@ int main() {
 	//============================================================================ shaders and setups for shadowMap
 	GLuint depthProgramID = utils::loadShaders( SHADERS_PATH "/depthShadow.vert", SHADERS_PATH "/depthShadow.frag" );
 
-	// Get a handle for our "MVP" uniform
+	//mvp uniform
 	GLuint depthMatrixID = glGetUniformLocation(depthProgramID, "depthMVP");
 
-	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 	GLuint FramebufferShadow = 1;
 	glGenFramebuffers(1, &FramebufferShadow);
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferShadow);
 
-	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	//depth texture
 	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
@@ -139,7 +137,7 @@ int main() {
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
 	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
 
-	//always check framebuffer is ok
+	//always check if framebuffer is ok
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	return false;
 
@@ -148,7 +146,7 @@ int main() {
 	GLuint outlineProgramID = utils::loadShaders( SHADERS_PATH "/preOutline.vert", SHADERS_PATH "/preOutline.frag" );
 	glUseProgram(outlineProgramID);
 
-	//handle to mvp uniform
+	//mvp uniform
 	GLuint outlineMatrixID = glGetUniformLocation(outlineProgramID, "normalDepthMVP");
 	GLuint outlineMVinvertiertMatrixID = glGetUniformLocation(outlineProgramID, "mv_ti");
 
@@ -161,7 +159,6 @@ int main() {
 	GLuint normalDepthTexture;
 	glGenTextures(1, &normalDepthTexture);
 	glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
-	//properties
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, windowWidth, windowWidth, 0, GL_RGBA, GL_FLOAT, 0); //RGBA 4 Parameter, Aufloesung 1024x1024 als Angabe fuer Texture2D
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in u Richtung
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER); //wrapping: repeat,clamp,.. in v Richtung
@@ -175,7 +172,7 @@ int main() {
 	 glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, windowWidth, windowWidth);
 	 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
-	 //set texture as our colour attachement #0
+	 //set texture as colour attachement #0
 	 glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, normalDepthTexture, 0);
 
 	 //set the list of draw buffers
@@ -191,7 +188,6 @@ int main() {
 		SHADERS_PATH "/hatch.frag");
 
 	//---------------------------------------------------------------- lightPosition
-
 	float phi = glm::pi<float>()/4;
 	float theta = 0.0;
 	float radius = 10.0;
@@ -200,14 +196,14 @@ int main() {
 	GLuint lightID = glGetUniformLocation(programID, "lightPos_Model");
 
 	// --------------------------------------------------------------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//mvp etc uniform
 	GLuint MatrixM = glGetUniformLocation(programID, "m");
 	GLuint MatrixV = glGetUniformLocation(programID, "v");
 	GLuint MatrixP = glGetUniformLocation(programID, "p");
 	GLuint MatrixMV_ti = glGetUniformLocation(programID, "mv_ti");
 	GLuint depthMVPID = glGetUniformLocation(programID, "depthMVP");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID = glGetUniformLocation(programID, "hatch00");
 	GLuint hatch01ID = glGetUniformLocation(programID, "hatch01");
 	GLuint hatch02ID = glGetUniformLocation(programID, "hatch02");
@@ -221,6 +217,7 @@ int main() {
 	GLuint lightProgramID = utils::loadShaders( SHADERS_PATH "/minimal.vert",
 	SHADERS_PATH "/minimal.frag");
 
+	//mvp uniform
 	GLuint lightMatrixM = glGetUniformLocation(lightProgramID, "m");
 	GLuint lightMatrixV = glGetUniformLocation(lightProgramID, "v");
 	GLuint lightMatrixP = glGetUniformLocation(lightProgramID, "p");
@@ -231,8 +228,7 @@ int main() {
 	GLuint programID1 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch1Only.frag");
 
-	// ----------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//matrix uniforms
 	GLuint MatrixM1 = glGetUniformLocation(programID1, "m");
 	GLuint MatrixV1 = glGetUniformLocation(programID1, "v");
 	GLuint MatrixP1 = glGetUniformLocation(programID1, "p");
@@ -240,24 +236,21 @@ int main() {
 	GLuint depthMVPID1 = glGetUniformLocation(programID1, "depthMVP");
 	GLuint lightID1 = glGetUniformLocation(programID1, "lightPos_Model");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID1 = glGetUniformLocation(programID1, "hatch00");
 	GLuint hatch01ID1 = glGetUniformLocation(programID1, "hatch01");
 	GLuint hatch02ID1 = glGetUniformLocation(programID1, "hatch02");
 	GLuint hatch03ID1 = glGetUniformLocation(programID1, "hatch03");
 	GLuint hatch04ID1 = glGetUniformLocation(programID1, "hatch04");
 	GLuint hatch05ID1 = glGetUniformLocation(programID1, "hatch05");
-	GLuint shadowMapID1 = glGetUniformLocation(programID1, "shadowMap");
-	GLuint normalDepthID1 = glGetUniformLocation(programID1, "normalDepth");//outline
 
 	//===========================
 	//2 threshold
-	//============================================================================== shaders and setup for only hatching
+	//============================================================================== shaders only hatching+thresh
 	GLuint programID2 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch2Threshold.frag");
 
-	// ----------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//matrix uniforms
 	GLuint MatrixM2 = glGetUniformLocation(programID2, "m");
 	GLuint MatrixV2 = glGetUniformLocation(programID2, "v");
 	GLuint MatrixP2 = glGetUniformLocation(programID2, "p");
@@ -265,24 +258,21 @@ int main() {
 	GLuint depthMVPID2 = glGetUniformLocation(programID2, "depthMVP");
 	GLuint lightID2 = glGetUniformLocation(programID2, "lightPos_Model");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID2 = glGetUniformLocation(programID2, "hatch00");
 	GLuint hatch01ID2 = glGetUniformLocation(programID2, "hatch01");
 	GLuint hatch02ID2 = glGetUniformLocation(programID2, "hatch02");
 	GLuint hatch03ID2 = glGetUniformLocation(programID2, "hatch03");
 	GLuint hatch04ID2 = glGetUniformLocation(programID2, "hatch04");
 	GLuint hatch05ID2 = glGetUniformLocation(programID2, "hatch05");
-	GLuint shadowMapID2 = glGetUniformLocation(programID2, "shadowMap");
-	GLuint normalDepthID2 = glGetUniformLocation(programID2, "normalDepth");//outline
 
 	//===========================
 	//3 outline
-	//============================================================================== shaders and setup for only hatching
+	//============================================================================== shaders for hatching + outline
 	GLuint programID3 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch3Outline.frag");
 
-	// ----------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//matrix uniforms
 	GLuint MatrixM3 = glGetUniformLocation(programID3, "m");
 	GLuint MatrixV3 = glGetUniformLocation(programID3, "v");
 	GLuint MatrixP3 = glGetUniformLocation(programID3, "p");
@@ -290,7 +280,7 @@ int main() {
 	GLuint depthMVPID3 = glGetUniformLocation(programID3, "depthMVP");
 	GLuint lightID3 = glGetUniformLocation(programID3, "lightPos_Model");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID3 = glGetUniformLocation(programID3, "hatch00");
 	GLuint hatch01ID3 = glGetUniformLocation(programID3, "hatch01");
 	GLuint hatch02ID3 = glGetUniformLocation(programID3, "hatch02");
@@ -301,13 +291,12 @@ int main() {
 	GLuint normalDepthID3 = glGetUniformLocation(programID3, "normalDepth");//outline
 
 	//===========================
-	//4 outline
-	//============================================================================== shaders and setup for only hatching
+	//4 shadow
+	//============================================================================== shaders for hatching + shadow
 	GLuint programID4 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch4Shadow.frag");
 
-	// ----------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//matrix uniforms
 	GLuint MatrixM4 = glGetUniformLocation(programID4, "m");
 	GLuint MatrixV4 = glGetUniformLocation(programID4, "v");
 	GLuint MatrixP4 = glGetUniformLocation(programID4, "p");
@@ -315,7 +304,7 @@ int main() {
 	GLuint depthMVPID4 = glGetUniformLocation(programID4, "depthMVP");
 	GLuint lightID4 = glGetUniformLocation(programID4, "lightPos_Model");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID4 = glGetUniformLocation(programID4, "hatch00");
 	GLuint hatch01ID4 = glGetUniformLocation(programID4, "hatch01");
 	GLuint hatch02ID4 = glGetUniformLocation(programID4, "hatch02");
@@ -331,8 +320,7 @@ int main() {
 	GLuint programID9 = utils::loadShaders( SHADERS_PATH "/hatch.vert",
 		SHADERS_PATH "/hatch9NoThresh.frag");
 
-	// ----------- Uniforms
-	//handle for mvp modelViwProjMatrix uniform
+	//matrix uniforms
 	GLuint MatrixM9 = glGetUniformLocation(programID9, "m");
 	GLuint MatrixV9 = glGetUniformLocation(programID9, "v");
 	GLuint MatrixP9 = glGetUniformLocation(programID9, "p");
@@ -340,7 +328,7 @@ int main() {
 	GLuint depthMVPID9 = glGetUniformLocation(programID9, "depthMVP");
 	GLuint lightID9 = glGetUniformLocation(programID9, "lightPos_Model");
 
-	//handle for texture sampler uniform
+	//texture sampler uniform
 	GLuint hatch00ID9 = glGetUniformLocation(programID9, "hatch00");
 	GLuint hatch01ID9 = glGetUniformLocation(programID9, "hatch01");
 	GLuint hatch02ID9 = glGetUniformLocation(programID9, "hatch02");
@@ -397,7 +385,7 @@ int main() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// use shader for depth
+		// use shader for shadowMap
 		glUseProgram(depthProgramID);
 
 		glm::mat4 depthProjectionMatrix = glm::perspective(glm::radians(100.0f), 1.0f, 0.1f, 100.0f);
@@ -411,7 +399,6 @@ int main() {
 
 		currentModel->render();
 		// --------------------------------
-
 		//matrices
 				utils::computeMatricesFromInputs();
 				glm::mat4 m = glm::mat4(1.0);
@@ -539,14 +526,6 @@ int main() {
 				glActiveTexture(GL_TEXTURE5);
 				glBindTexture(GL_TEXTURE_2D, texture_hatch05);
 				glUniform1i(hatch05ID1, 5);
-
-				glActiveTexture(GL_TEXTURE6);
-				glBindTexture(GL_TEXTURE_2D, depthTexture);
-				glUniform1i(shadowMapID1, 6);
-
-				glActiveTexture(GL_TEXTURE7);
-				glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
-				glUniform1i(normalDepthID1, 7);
 				break;
 			case 2:
 				//use shader with only hatches (no shadow, no threshold, no outline)
@@ -581,14 +560,6 @@ int main() {
 				glActiveTexture(GL_TEXTURE5);
 				glBindTexture(GL_TEXTURE_2D, texture_hatch05);
 				glUniform1i(hatch05ID2, 5);
-
-				glActiveTexture(GL_TEXTURE6);
-				glBindTexture(GL_TEXTURE_2D, depthTexture);
-				glUniform1i(shadowMapID2, 6);
-
-				glActiveTexture(GL_TEXTURE7);
-				glBindTexture(GL_TEXTURE_2D, normalDepthTexture);
-				glUniform1i(normalDepthID2, 7);
 				break;
 			case 3:
 				//use shader with hatch + threshold
@@ -778,6 +749,11 @@ int main() {
 	glDeleteProgram(depthProgramID);
 	glDeleteProgram(outlineProgramID);
 	glDeleteProgram(programID);
+	glDeleteProgram(programID1);
+	glDeleteProgram(programID2);
+	glDeleteProgram(programID3);
+	glDeleteProgram(programID4);
+	glDeleteProgram(programID9);
 
 	//close OpenGL window and terminate GLFW
 	glfwTerminate();

@@ -1,10 +1,3 @@
-/*
- * Control.h
- *
- *  Created on: Dec 6, 2015
- *      Author: Shuyi
- */
-
 #ifndef SRC_EXEC_UTILS_CONTROL_H_
 #define SRC_EXEC_UTILS_CONTROL_H_
 

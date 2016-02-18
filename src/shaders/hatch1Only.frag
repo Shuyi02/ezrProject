@@ -1,7 +1,6 @@
-
 #version 330 core
 
-//Input
+//input
 in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
@@ -16,7 +15,7 @@ uniform sampler2D hatch03;
 uniform sampler2D hatch04;
 uniform sampler2D hatch05;
 
-// Ouput data
+//ouput data
 out vec3 fcolor;
 
 //window 
@@ -25,9 +24,6 @@ int windowWidth = 1024;
 
 void main()
 {	
-	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
-	float lightPower = 50.0f;
-	
 	float distance = length(lightPos_camera - vertex_camera);
 	
 	//----------------------------------------------------------------diffuse

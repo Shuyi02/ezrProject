@@ -1,10 +1,3 @@
-/*
- * ShaderLoad.cpp
- *
- *  Created on: Dec 4, 2015
- *      Author: Shuyi
- */
-
 #include <stdio.h>
 #include <string>
 #include <vector>

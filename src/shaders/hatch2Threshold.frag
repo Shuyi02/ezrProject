@@ -1,4 +1,3 @@
-
 #version 330 core
 
 //Input
@@ -27,9 +26,6 @@ int windowWidth = 1024;
 
 void main()
 {	
-	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
-	float lightPower = 50.0f;
-	
 	float distance = length(lightPos_camera - vertex_camera);
 	
 	//----------------------------------------------------------------diffuse
@@ -97,6 +93,5 @@ void main()
 	
 	//---------------------------------------------------------------------------frag color
 	fcolor = hatchColor;
-
 
 }

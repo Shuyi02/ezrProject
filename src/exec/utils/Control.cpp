@@ -1,10 +1,3 @@
-/*
- * Control.cpp
- *
- *  Created on: Dec 6, 2015
- *      Author: Shuyi
- */
-
 // Include GLFW
 #include <GLFW/glfw3.h>
 //the "extern" keyword here is to access the variable "window" in main.cpp. This is a hack.

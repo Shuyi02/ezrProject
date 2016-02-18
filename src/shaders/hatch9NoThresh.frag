@@ -1,4 +1,3 @@
-
 #version 330 core
 
 //Input
@@ -106,15 +105,6 @@ void main()
 	
 	//----------------------------------------------------------------- hatch color
 	vec3 hatchColor = (white + h0 + h1 + h2 + h3 + h4 + h5).xyz;
-	
-	//threshold
-	//if(hatchColor.x < 0.6){
-	//	hatchColor = vec3(0.0);
-	//}else{
-	//	hatchColor = vec3(1.0);
-	//}
-
-
 
 	//------------------------------------------------------------------- outline
 
@@ -138,20 +128,6 @@ void main()
 	float gNormalx = sqrt(Gx.x*Gx.x + Gy.x*Gy.x);
 	float gNormaly = sqrt(Gx.y*Gx.y + Gy.y*Gy.y);
 	float gNormalz= sqrt(Gx.z*Gx.z + Gy.z*Gy.z);
-	
-	//all in all gradient, should be used differently maybe :D
-	//float g = gDepth + gNormalx + gNormaly + gNormalz;
-	
-	//---------- optional try more like paper maybe for a better or worse result lol
-	//float Gx_normal = length(miauA.xyz-miauX and so on) + 2*length(miauD.xyz) + length(miauF.w) 
-	//				  - length(miauC.xyz) - 2*length(miauE.xyz) - length(miauH.xyz);
-	//float Gy_normal = length(miauA.xyz) + 2*length(miauB.xyz) + length(miauC.xyz) 
-	//				  - length(miauF.xyz) - 2*length(miauG.xyz) - length(miauH.xyz);
-	//float gDepth = sqrt(Gx.w*Gx.w + Gy.w*Gy.w);
-	//float gNormalx = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
-	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
-	//float gNormaly = sqrt(Gx_normal*Gx_normal + Gy_normal*Gy_normal);
-
 	
 	//---------------------------------------------------------------------------frag color
 	fcolor = hatchColor;

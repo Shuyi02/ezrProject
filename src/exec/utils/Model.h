@@ -1,10 +1,3 @@
-/*
- * ModelLoader.h
- *
- *  Created on: Dec 11, 2015
- *      Author: Shuyi
- */
-
 #ifndef SRC_EXEC_UTILS_MODEL_H_
 #define SRC_EXEC_UTILS_MODEL_H_
 

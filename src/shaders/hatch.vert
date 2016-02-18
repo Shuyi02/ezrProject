@@ -32,13 +32,5 @@ void main(){
 	vertex_model = vert_modelspace;
 	depthMVPFrag = depthMVP;
 	
-	//----------------------------------------------spherical uv
-	//float pi = 3.14159265;
-	//float su = asin(normalize(vert_modelspace).x)/pi + 0.5;
-	//float sv = asin(normalize(vert_modelspace).y)/pi + 0.5;
-	//vec2 suv = vec2(su,sv)*5.0;	
-	//uv = suv;
-	
-	//-----------------------------------------------standard uv
 	uv = vertexUV;
 }

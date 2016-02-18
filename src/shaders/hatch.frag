@@ -1,7 +1,6 @@
-
 #version 330 core
 
-//Input
+//input
 in vec3 vertex_camera;
 in vec3 normal_camera;
 in vec3 lightPos_camera;
@@ -9,6 +8,7 @@ in vec2 uv;
 in vec3 vertex_model;
 in mat4 depthMVPFrag;
 
+//unfiorm
 uniform sampler2D hatch00;
 uniform sampler2D hatch01;
 uniform sampler2D hatch02;
@@ -18,7 +18,7 @@ uniform sampler2D hatch05;
 uniform sampler2D shadowMap;
 uniform sampler2D normalDepth;
 
-// Ouput data
+//oput data
 out vec3 fcolor;
 
 //window 
@@ -27,9 +27,6 @@ int windowWidth = 1024;
 
 void main()
 {	
-	vec3 diffLightColor = vec3(1.0f,0.0f,0.0f);
-	float lightPower = 50.0f;
-	
 	float distance = length(lightPos_camera - vertex_camera);
 	
 	//----------------------------------------------------------------diffuse
@@ -113,8 +110,6 @@ void main()
 	}else{
 		hatchColor = vec3(1.0);
 	}
-
-
 
 	//------------------------------------------------------------------- outline
 
