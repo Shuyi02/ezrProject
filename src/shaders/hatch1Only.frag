@@ -15,12 +15,12 @@ uniform sampler2D hatch03;
 uniform sampler2D hatch04;
 uniform sampler2D hatch05;
 
+//window 
+uniform int windowHeight;
+uniform int windowWidth;
+
 //ouput data
 out vec3 fcolor;
-
-//window 
-int windowHeight = 768;
-int windowWidth = 1024;
 
 void main()
 {	

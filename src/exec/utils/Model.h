@@ -31,7 +31,7 @@ public:
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec2& u1,
 				glm::vec2& u2, glm::vec2& u3);
 
-		void getCurvatureTensor(glm::vec3 triangleA,
+		void getCurvature(glm::vec3 triangleA,
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
 				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection);
 	};

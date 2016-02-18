@@ -58,7 +58,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh, int mode) {
 
 			//curvature
 			glm::vec3 curvatureDirection;
-			getCurvatureTensor(a, b, c, n0, n1, n2, curvatureDirection);
+			getCurvature(a, b, c, n0, n1, n2, curvatureDirection);
 
 			//rotate texture into same direction as a direction (e.g. curvature)
 			glm::vec3 globalDir(1.0, 0.0, 0.0);
@@ -70,6 +70,7 @@ Model::MeshEntry::MeshEntry(aiMesh *mesh, int mode) {
 				calcTexCoord(curvatureDirection, a, b, c, u1, u2, u3);
 			else
 				calcTexCoord(globalDir, a, b, c, u1, u2, u3);
+
 			//scale texture depending on triangle size
 			float triangleArea = 0.5*glm::length(glm::cross(b-a, c-a));
 			float scale = glm::sqrt(triangleArea/0.2);
@@ -171,7 +172,7 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	u3 = rotationPoint + (rotate * (u3-rotationPoint));
 }
 
-void Model::MeshEntry::getCurvatureTensor(glm::vec3 triangleA,
+void Model::MeshEntry::getCurvature(glm::vec3 triangleA,
 				glm::vec3 triangleB, glm::vec3 triangleC, glm::vec3 normalA,
 				glm::vec3 normalB, glm::vec3 normalC, glm::vec3& curvatureDirection){
 

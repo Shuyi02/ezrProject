@@ -18,12 +18,12 @@ uniform sampler2D hatch05;
 uniform sampler2D shadowMap;
 uniform sampler2D normalDepth;
 
+//window 
+uniform int windowHeight;
+uniform int windowWidth;
+
 //oput data
 out vec3 fcolor;
-
-//window 
-int windowHeight = 768;
-int windowWidth = 1024;
 
 void main()
 {	

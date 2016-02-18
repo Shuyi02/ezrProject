@@ -197,6 +197,8 @@ int main() {
 
 	// --------------------------------------------------------------- Uniforms
 	//mvp etc uniform
+	GLuint windowWidthID = glGetUniformLocation(programID, "windowWidth");
+	GLuint windowHeightID = glGetUniformLocation(programID, "windowHeight");
 	GLuint MatrixM = glGetUniformLocation(programID, "m");
 	GLuint MatrixV = glGetUniformLocation(programID, "v");
 	GLuint MatrixP = glGetUniformLocation(programID, "p");
@@ -229,6 +231,8 @@ int main() {
 		SHADERS_PATH "/hatch1Only.frag");
 
 	//matrix uniforms
+	GLuint windowWidth1ID = glGetUniformLocation(programID1, "windowWidth");
+	GLuint windowHeight1ID = glGetUniformLocation(programID1, "windowHeight");
 	GLuint MatrixM1 = glGetUniformLocation(programID1, "m");
 	GLuint MatrixV1 = glGetUniformLocation(programID1, "v");
 	GLuint MatrixP1 = glGetUniformLocation(programID1, "p");
@@ -251,6 +255,8 @@ int main() {
 		SHADERS_PATH "/hatch2Threshold.frag");
 
 	//matrix uniforms
+	GLuint windowWidth2ID = glGetUniformLocation(programID2, "windowWidth");
+	GLuint windowHeight2ID = glGetUniformLocation(programID2, "windowHeight");
 	GLuint MatrixM2 = glGetUniformLocation(programID2, "m");
 	GLuint MatrixV2 = glGetUniformLocation(programID2, "v");
 	GLuint MatrixP2 = glGetUniformLocation(programID2, "p");
@@ -273,6 +279,8 @@ int main() {
 		SHADERS_PATH "/hatch3Outline.frag");
 
 	//matrix uniforms
+	GLuint windowWidth3ID = glGetUniformLocation(programID3, "windowWidth");
+	GLuint windowHeight3ID = glGetUniformLocation(programID3, "windowHeight");
 	GLuint MatrixM3 = glGetUniformLocation(programID3, "m");
 	GLuint MatrixV3 = glGetUniformLocation(programID3, "v");
 	GLuint MatrixP3 = glGetUniformLocation(programID3, "p");
@@ -297,6 +305,8 @@ int main() {
 		SHADERS_PATH "/hatch4Shadow.frag");
 
 	//matrix uniforms
+	GLuint windowWidth4ID = glGetUniformLocation(programID4, "windowWidth");
+	GLuint windowHeight4ID = glGetUniformLocation(programID4, "windowHeight");
 	GLuint MatrixM4 = glGetUniformLocation(programID4, "m");
 	GLuint MatrixV4 = glGetUniformLocation(programID4, "v");
 	GLuint MatrixP4 = glGetUniformLocation(programID4, "p");
@@ -321,6 +331,8 @@ int main() {
 		SHADERS_PATH "/hatch9NoThresh.frag");
 
 	//matrix uniforms
+	GLuint windowWidth9ID = glGetUniformLocation(programID9, "windowWidth");
+	GLuint windowHeight9ID = glGetUniformLocation(programID9, "windowHeight");
 	GLuint MatrixM9 = glGetUniformLocation(programID9, "m");
 	GLuint MatrixV9 = glGetUniformLocation(programID9, "v");
 	GLuint MatrixP9 = glGetUniformLocation(programID9, "p");
@@ -448,6 +460,8 @@ int main() {
 				//use main shader
 				glUseProgram(programID);
 
+				glUniform1i(windowWidthID, windowWidth);
+				glUniform1i(windowHeightID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV, 1, GL_FALSE, &v[0][0]);
@@ -491,6 +505,8 @@ int main() {
 				//use shader with only hatches (no shadow, no threshold, no outline)
 				glUseProgram(programID1);
 
+				glUniform1i(windowWidth1ID, windowWidth);
+				glUniform1i(windowHeight1ID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM1, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV1, 1, GL_FALSE, &v[0][0]);
@@ -525,6 +541,8 @@ int main() {
 				//use shader with only hatches (no shadow, no threshold, no outline)
 				glUseProgram(programID2);
 
+				glUniform1i(windowWidth2ID, windowWidth);
+				glUniform1i(windowHeight2ID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM2, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV2, 1, GL_FALSE, &v[0][0]);
@@ -559,6 +577,8 @@ int main() {
 				//use shader with hatch + threshold
 				glUseProgram(programID3);
 
+				glUniform1i(windowWidth3ID, windowWidth);
+				glUniform1i(windowHeight3ID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM3, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV3, 1, GL_FALSE, &v[0][0]);
@@ -601,6 +621,8 @@ int main() {
 				//use shader with hatch + threshold
 				glUseProgram(programID4);
 
+				glUniform1i(windowWidth4ID, windowWidth);
+				glUniform1i(windowHeight4ID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM4, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV4, 1, GL_FALSE, &v[0][0]);
@@ -643,6 +665,8 @@ int main() {
 				//use shader with only hatches (no shadow, no threshold, no outline)
 				glUseProgram(programID9);
 
+				glUniform1i(windowWidth9ID, windowWidth);
+				glUniform1i(windowHeight9ID, windowHeight);
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM9, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV9, 1, GL_FALSE, &v[0][0]);
