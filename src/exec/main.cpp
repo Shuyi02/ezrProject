@@ -448,12 +448,6 @@ int main() {
 				//use main shader
 				glUseProgram(programID);
 
-				//render from view of the light
-				if(glfwGetKey(window, GLFW_KEY_K ) == GLFW_PRESS){
-					v = depthViewMatrix;
-					p = depthProjectionMatrix;
-				}
-
 				//send transformations to currently bound shader in the mvp uniform
 				glUniformMatrix4fv(MatrixM, 1, GL_FALSE, &m[0][0]);
 				glUniformMatrix4fv(MatrixV, 1, GL_FALSE, &v[0][0]);

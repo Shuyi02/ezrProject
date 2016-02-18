@@ -139,6 +139,7 @@ void Model::MeshEntry::calcTexCoord(glm::vec3 textureDir, glm::vec3 triangleA,
 	glm::vec3 proj = projectIntoPlane(textureDir, triangleA, triangleB, triangleC);
 
 	//project triangle and everything into2D
+
 	glm::mat3x2 projMat = createProjection(triangleA, triangleB, triangleC);
 	glm::vec2 a2D = projMat * (triangleA - triangleA);
 	glm::vec2 b2D = projMat * (triangleB - triangleA);
